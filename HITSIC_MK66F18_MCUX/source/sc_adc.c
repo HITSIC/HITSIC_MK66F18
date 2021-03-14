@@ -19,11 +19,11 @@
 
 
 
-adc16_channel_config_t ADC_channelsConfig = {
-
+adc16_channel_config_t ADC_channelsConfig =
+{
+    .channelNumber = 0U,
     .enableDifferentialConversion = false,
-    .enableInterruptOnConversionCompleted = false
-
+    .enableInterruptOnConversionCompleted = false,
 };
 
 

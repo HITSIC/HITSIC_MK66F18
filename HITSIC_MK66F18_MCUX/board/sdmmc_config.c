@@ -58,7 +58,10 @@ void BOARD_SD_Config(void *card, sd_cd_t cd, uint32_t hostIRQPriority, void *use
     ((sd_card_t *)card)->host->hostController.base           = BOARD_SDMMC_SD_HOST_BASEADDR;
     ((sd_card_t *)card)->host->hostController.sourceClock_Hz = CLOCK_GetFreq(kCLOCK_CoreSysClk);
 
-    ((sd_card_t *)card)->host->hostEvent = &s_event;
+    //((sd_card_t *)card)->host->hostEvent = (sdmmc_osa_event_t*)&s_event;
+
+    memcpy(&((sd_card_t *)card)->host->hostEvent, &s_event, sizeof(sdmmc_osa_event_t));
+
     ((sd_card_t *)card)->usrParam.cd     = &s_cd;
 
     BOARD_SDCardDetectInit(cd, userData);
