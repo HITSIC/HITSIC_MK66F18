@@ -37,7 +37,7 @@ product: Clocks v7.0
 processor: MK66FX1M0xxx18
 package_id: MK66FX1M0VLQ18
 mcu_data: ksdk2_0
-processor_version: 8.0.1
+processor_version: 9.0.0
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 
@@ -171,12 +171,12 @@ const osc_config_t oscConfig_RTECLK_HsRun_180MHz =
  ******************************************************************************/
 void RTECLK_HsRun_180MHz(void)
 {
-//    /* Set HSRUN power mode */
-//    SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
-//    SMC_SetPowerModeHsrun(SMC);
-//    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateHsrun)
-//    {
-//    }
+    /* Set HSRUN power mode */
+    SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
+    SMC_SetPowerModeHsrun(SMC);
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateHsrun)
+    {
+    }
     /* Set the system clock dividers in SIM to safe value. */
     CLOCK_SetSimSafeDivs();
     /* Initializes OSC0 according to board configuration. */

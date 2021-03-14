@@ -6,11 +6,11 @@
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!GlobalInfo
-product: Peripherals v8.0
+product: Peripherals v9.0
 processor: MK66FX1M0xxx18
 package_id: MK66FX1M0VLQ18
 mcu_data: ksdk2_0
-processor_version: 8.0.1
+processor_version: 9.0.0
 functionalGroups:
 - name: RTEPIP_Basic
   UUID: a4a4647f-1145-476a-aea5-a573ead41735
@@ -109,10 +109,10 @@ instance:
 
 static void GPIOA_init(void) {
   /* Make sure, the clock gate for port A is enabled (e. g. in pin_mux.c) */
-  /* Interrupt vector PORTA_IRQn priority settings in the NVIC */
-  NVIC_SetPriority(PORTA_IRQn, GPIOA_IRQ_PRIORITY);
-  /* Enable interrupt PORTA_IRQn request in the NVIC */
-  EnableIRQ(PORTA_IRQn);
+  /* Interrupt vector PORTA_IRQn priority settings in the NVIC. */
+  NVIC_SetPriority(GPIOA_IRQN, GPIOA_IRQ_PRIORITY);
+  /* Enable interrupt PORTA_IRQn request in the NVIC. */
+  EnableIRQ(GPIOA_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -142,10 +142,10 @@ instance:
 
 static void GPIOB_init(void) {
   /* Make sure, the clock gate for port B is enabled (e. g. in pin_mux.c) */
-  /* Interrupt vector PORTB_IRQn priority settings in the NVIC */
-  NVIC_SetPriority(PORTB_IRQn, GPIOB_IRQ_PRIORITY);
-  /* Enable interrupt PORTB_IRQn request in the NVIC */
-  EnableIRQ(PORTB_IRQn);
+  /* Interrupt vector PORTB_IRQn priority settings in the NVIC. */
+  NVIC_SetPriority(GPIOB_IRQN, GPIOB_IRQ_PRIORITY);
+  /* Enable interrupt PORTB_IRQn request in the NVIC. */
+  EnableIRQ(GPIOB_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -175,10 +175,10 @@ instance:
 
 static void GPIOC_init(void) {
   /* Make sure, the clock gate for port C is enabled (e. g. in pin_mux.c) */
-  /* Interrupt vector PORTC_IRQn priority settings in the NVIC */
-  NVIC_SetPriority(PORTC_IRQn, GPIOC_IRQ_PRIORITY);
-  /* Enable interrupt PORTC_IRQn request in the NVIC */
-  EnableIRQ(PORTC_IRQn);
+  /* Interrupt vector PORTC_IRQn priority settings in the NVIC. */
+  NVIC_SetPriority(GPIOC_IRQN, GPIOC_IRQ_PRIORITY);
+  /* Enable interrupt PORTC_IRQn request in the NVIC. */
+  EnableIRQ(GPIOC_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -208,10 +208,10 @@ instance:
 
 static void GPIOD_init(void) {
   /* Make sure, the clock gate for port D is enabled (e. g. in pin_mux.c) */
-  /* Interrupt vector PORTD_IRQn priority settings in the NVIC */
-  NVIC_SetPriority(PORTD_IRQn, GPIOD_IRQ_PRIORITY);
-  /* Enable interrupt PORTD_IRQn request in the NVIC */
-  EnableIRQ(PORTD_IRQn);
+  /* Interrupt vector PORTD_IRQn priority settings in the NVIC. */
+  NVIC_SetPriority(GPIOD_IRQN, GPIOD_IRQ_PRIORITY);
+  /* Enable interrupt PORTD_IRQn request in the NVIC. */
+  EnableIRQ(GPIOD_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -241,10 +241,10 @@ instance:
 
 static void GPIOE_init(void) {
   /* Make sure, the clock gate for port E is enabled (e. g. in pin_mux.c) */
-  /* Interrupt vector PORTE_IRQn priority settings in the NVIC */
-  NVIC_SetPriority(PORTE_IRQn, GPIOE_IRQ_PRIORITY);
-  /* Enable interrupt PORTE_IRQn request in the NVIC */
-  EnableIRQ(PORTE_IRQn);
+  /* Interrupt vector PORTE_IRQn priority settings in the NVIC. */
+  NVIC_SetPriority(GPIOE_IRQN, GPIOE_IRQ_PRIORITY);
+  /* Enable interrupt PORTE_IRQn request in the NVIC. */
+  EnableIRQ(GPIOE_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -298,10 +298,10 @@ static void LPTMR0_init(void) {
   LPTMR_SetTimerPeriod(LPTMR0_PERIPHERAL, LPTMR0_TICKS);
   /* Configure timer interrupt */
   LPTMR_EnableInterrupts(LPTMR0_PERIPHERAL, kLPTMR_TimerInterruptEnable);
-  /* Interrupt vector LPTMR0_IRQn priority settings in the NVIC */
-  NVIC_SetPriority(LPTMR0_IRQn, LPTMR0_IRQ_PRIORITY);
-  /* Enable interrupt LPTMR0_IRQn request in the NVIC */
-  EnableIRQ(LPTMR0_IRQn);
+  /* Interrupt vector LPTMR0_IRQn priority settings in the NVIC. */
+  NVIC_SetPriority(LPTMR0_IRQN, LPTMR0_IRQ_PRIORITY);
+  /* Enable interrupt LPTMR0_IRQn request in the NVIC. */
+  EnableIRQ(LPTMR0_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -334,6 +334,36 @@ static void PIT_init(void) {
   /* Initialize the PIT. */
   PIT_Init(PIT_PERIPHERAL, &PIT_config);
 }
+
+/***********************************************************************************************************************
+ * NVIC initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'NVIC'
+- type: 'nvic'
+- mode: 'general'
+- custom_name_enabled: 'false'
+- type_id: 'nvic_57b5eef3774cc60acaede6f5b8bddc67'
+- functional_group: 'RTEPIP_Basic'
+- peripheral: 'NVIC'
+- config_sets:
+  - nvic:
+    - interrupt_table:
+      - 0: []
+      - 1: []
+      - 2: []
+      - 3: []
+      - 4: []
+      - 5: []
+    - interrupts: []
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+
+/* Empty initialization function (commented out)
+static void NVIC_init(void) {
+} */
 
 /***********************************************************************************************************************
  * RTEPIP_Device functional group
@@ -1082,6 +1112,36 @@ const uart_config_t WLAN_UART_config = {
 static void WLAN_UART_init(void) {
   UART_Init(WLAN_UART_PERIPHERAL, &WLAN_UART_config, WLAN_UART_CLOCK_SOURCE);
 }
+
+/***********************************************************************************************************************
+ * NVIC_2 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'NVIC_2'
+- type: 'nvic'
+- mode: 'general'
+- custom_name_enabled: 'false'
+- type_id: 'nvic_57b5eef3774cc60acaede6f5b8bddc67'
+- functional_group: 'RTEPIP_Device'
+- peripheral: 'NVIC'
+- config_sets:
+  - nvic:
+    - interrupt_table:
+      - 0: []
+      - 1: []
+      - 2: []
+      - 3: []
+      - 4: []
+      - 5: []
+    - interrupts: []
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+
+/* Empty initialization function (commented out)
+static void NVIC_2_init(void) {
+} */
 
 /***********************************************************************************************************************
  * Initialization functions

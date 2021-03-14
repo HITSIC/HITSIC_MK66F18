@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -22,8 +22,9 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief ADC16 driver version 2.1.0. */
-#define FSL_ADC16_DRIVER_VERSION (MAKE_VERSION(2, 1, 0))
+/*! @brief ADC16 driver version 2.2.0. */
+#define FSL_ADC16_DRIVER_VERSION (MAKE_VERSION(2, 2, 0))
+
 /*@}*/
 
 /*!
@@ -195,6 +196,9 @@ typedef struct _adc16_config
     bool enableHighSpeed;                                    /*!< Enable the high-speed mode. */
     bool enableLowPower;                                     /*!< Enable low power. */
     bool enableContinuousConversion;                         /*!< Enable continuous conversion mode. */
+#if defined(FSL_FEATURE_ADC16_HAS_HW_AVERAGE) && FSL_FEATURE_ADC16_HAS_HW_AVERAGE
+    adc16_hardware_average_mode_t hardwareAverageMode; /*!< Set hardware average mode. */
+#endif                                                 /* FSL_FEATURE_ADC16_HAS_HW_AVERAGE */
 } adc16_config_t;
 
 /*!
@@ -216,10 +220,10 @@ typedef struct _adc16_channel_config
     uint32_t channelNumber;                    /*!< Setting the conversion channel number. The available range is 0-31.
                                                     See channel connection information for each chip in Reference
                                                     Manual document. */
+    bool enableInterruptOnConversionCompleted; /*!< Generate an interrupt request once the conversion is completed. */
 #if defined(FSL_FEATURE_ADC16_HAS_DIFF_MODE) && FSL_FEATURE_ADC16_HAS_DIFF_MODE
     bool enableDifferentialConversion; /*!< Using Differential sample mode. */
 #endif                                 /* FSL_FEATURE_ADC16_HAS_DIFF_MODE */
-    bool enableInterruptOnConversionCompleted; /*!< Generate an interrupt request once the conversion is completed. */
 } adc16_channel_config_t;
 
 #if defined(FSL_FEATURE_ADC16_HAS_PGA) && FSL_FEATURE_ADC16_HAS_PGA

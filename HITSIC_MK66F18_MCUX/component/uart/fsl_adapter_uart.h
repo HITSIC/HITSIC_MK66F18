@@ -9,6 +9,7 @@
 #ifndef __HAL_UART_ADAPTER_H__
 #define __HAL_UART_ADAPTER_H__
 
+#include "fsl_common.h"
 #if defined(FSL_RTOS_FREE_RTOS)
 #include "FreeRTOS.h"
 #endif
@@ -22,14 +23,7 @@
  * Definitions
  ******************************************************************************/
 
-/*! @brief Enable or disable UART adapter non-blocking mode (1 - enable, 0 - disable)
- * 
- * When defined DEBUG_CONSOLE_TRANSFER_NON_BLOCKING and the interrupt of the UART peripheral with 
- * setting instance is not routed to interrupt controller directly, the enablement and priority of 
- * the peripheral interrupt are not configured by UART adapter. 
- * Please configure the interrupt in the application layer. Such as, if the interrupt of UART peripheral routes to INTMUX,
- * please call function INTMUX_EnableInterrupt of INTMUX to enable the interrupt of the instance.
- */
+/*! @brief Enable or disable UART adapter non-blocking mode (1 - enable, 0 - disable) */
 #ifdef DEBUG_CONSOLE_TRANSFER_NON_BLOCKING
 #define UART_ADAPTER_NON_BLOCKING_MODE (1U)
 #else
@@ -64,11 +58,16 @@
 #define HAL_UART_ADAPTER_LOWPOWER (0U)
 #endif /* HAL_UART_ADAPTER_LOWPOWER */
 
+#ifndef HAL_UART_ADAPTER_FIFO
+#define HAL_UART_ADAPTER_FIFO (0U)
+#endif /* HAL_UART_ADAPTER_FIFO */
+
 /*! @brief Definition of uart adapter handle size. */
 #if (defined(UART_ADAPTER_NON_BLOCKING_MODE) && (UART_ADAPTER_NON_BLOCKING_MODE > 0U))
-#define HAL_UART_HANDLE_SIZE (90U + HAL_UART_ADAPTER_LOWPOWER * 16U)
+#define HAL_UART_HANDLE_SIZE       (92U + HAL_UART_ADAPTER_LOWPOWER * 16U)
+#define HAL_UART_BLOCK_HANDLE_SIZE (8U + HAL_UART_ADAPTER_LOWPOWER * 16U)
 #else
-#define HAL_UART_HANDLE_SIZE (4U + HAL_UART_ADAPTER_LOWPOWER * 16U)
+#define HAL_UART_HANDLE_SIZE (8U + HAL_UART_ADAPTER_LOWPOWER * 16U)
 #endif
 
 /*!
@@ -117,9 +116,18 @@ typedef enum _hal_uart_status
 typedef enum _hal_uart_parity_mode
 {
     kHAL_UartParityDisabled = 0x0U, /*!< Parity disabled */
-    kHAL_UartParityEven     = 0x1U, /*!< Parity even enabled */
-    kHAL_UartParityOdd      = 0x2U, /*!< Parity odd enabled */
+    kHAL_UartParityEven     = 0x2U, /*!< Parity even enabled */
+    kHAL_UartParityOdd      = 0x3U, /*!< Parity odd enabled */
 } hal_uart_parity_mode_t;
+
+#if (defined(UART_ADAPTER_NON_BLOCKING_MODE) && (UART_ADAPTER_NON_BLOCKING_MODE > 0U))
+/*! @brief UART Block Mode. */
+typedef enum _hal_uart_block_mode
+{
+    kHAL_UartNonBlockMode = 0x0U, /*!< Uart NonBlock Mode */
+    kHAL_UartBlockMode    = 0x1U, /*!< Uart Block Mode */
+} hal_uart_block_mode_t;
+#endif /* UART_ADAPTER_NON_BLOCKING_MODE */
 
 /*! @brief UART stop bit count. */
 typedef enum _hal_uart_stop_bit_count
@@ -137,9 +145,18 @@ typedef struct _hal_uart_config
     hal_uart_stop_bit_count_t stopBitCount; /*!< Number of stop bits, 1 stop bit (default) or 2 stop bits  */
     uint8_t enableRx;                       /*!< Enable RX */
     uint8_t enableTx;                       /*!< Enable TX */
+    uint8_t enableRxRTS;                    /*!< Enable RX RTS */
+    uint8_t enableTxCTS;                    /*!< Enable TX CTS */
     uint8_t instance; /*!< Instance (0 - UART0, 1 - UART1, ...), detail information please refer to the
                            SOC corresponding RM.
                            Invalid instance value will cause initialization failure. */
+#if (defined(UART_ADAPTER_NON_BLOCKING_MODE) && (UART_ADAPTER_NON_BLOCKING_MODE > 0U))
+    hal_uart_block_mode_t mode; /*!< Uart  block mode */
+#endif                          /* UART_ADAPTER_NON_BLOCKING_MODE */
+#if (defined(HAL_UART_ADAPTER_FIFO) && (HAL_UART_ADAPTER_FIFO > 0u))
+    uint8_t txFifoWatermark;
+    uint8_t rxFifoWatermark;
+#endif
 } hal_uart_config_t;
 
 /*! @brief UART transfer callback function. */
@@ -180,6 +197,8 @@ extern "C" {
  *   config.stopBitCount = kHAL_UartOneStopBit;
  *   config.enableRx = 1;
  *   config.enableTx = 1;
+ *   config.enableRxRTS = 0;
+ *   config.enableTxCTS = 0;
  *   config.instance = 0;
  *   HAL_UartInit((hal_uart_handle_t)g_UartHandle, &config);
  *  @endcode
@@ -194,7 +213,7 @@ extern "C" {
  * @retval kStatus_HAL_UartBaudrateNotSupport Baudrate is not support in current clock source.
  * @retval kStatus_HAL_UartSuccess UART initialization succeed
  */
-hal_uart_status_t HAL_UartInit(hal_uart_handle_t handle, hal_uart_config_t *config);
+hal_uart_status_t HAL_UartInit(hal_uart_handle_t handle, const hal_uart_config_t *config);
 
 /*!
  * @brief Deinitializes a UART instance.

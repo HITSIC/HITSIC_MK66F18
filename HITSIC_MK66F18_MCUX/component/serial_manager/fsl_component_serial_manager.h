@@ -9,8 +9,10 @@
 #ifndef __SERIAL_MANAGER_H__
 #define __SERIAL_MANAGER_H__
 
+#include "fsl_common.h"
+
 /*!
- * @addtogroup serialmanager
+ * @addtogroup Serial_Manager
  * @{
  */
 
@@ -25,6 +27,21 @@
 #else
 #ifndef SERIAL_MANAGER_NON_BLOCKING_MODE
 #define SERIAL_MANAGER_NON_BLOCKING_MODE (0U)
+#endif
+#endif
+
+#if (defined(SERIAL_MANAGER_NON_BLOCKING_MODE) && (SERIAL_MANAGER_NON_BLOCKING_MODE > 0U))
+/*! @brief Enable or disable serial manager dual(block and non-block) mode (1 - enable, 0 - disable) */
+#ifdef DEBUG_CONSOLE_TRANSFER_NON_BLOCKING
+#else
+#if (defined(SERIAL_MANAGER_NON_BLOCKING_MODE) && (SERIAL_MANAGER_NON_BLOCKING_MODE > 0U))
+#ifndef SERIAL_MANAGER_NON_BLOCKING_DUAL_MODE
+#define SERIAL_MANAGER_NON_BLOCKING_DUAL_MODE (1U)
+#endif
+#endif
+#endif
+#ifndef SERIAL_MANAGER_NON_BLOCKING_DUAL_MODE
+#define SERIAL_MANAGER_NON_BLOCKING_DUAL_MODE (0U)
 #endif
 #endif
 
@@ -44,21 +61,59 @@
 #endif
 
 /*! @brief Enable or disable USB CDC virtual port (1 - enable, 0 - disable) */
-#ifndef SERIAL_PORT_TYPE_USBCDC_VIRTUAL
-#define SERIAL_PORT_TYPE_USBCDC_VIRTUAL (0U)
+#ifndef SERIAL_PORT_TYPE_VIRTUAL
+#define SERIAL_PORT_TYPE_VIRTUAL (0U)
+#endif
+
+/*! @brief Enable or disable rPMSG port (1 - enable, 0 - disable) */
+#ifndef SERIAL_PORT_TYPE_RPMSG
+#define SERIAL_PORT_TYPE_RPMSG (0U)
+#endif
+
+/*! @brief Enable or disable SerialManager_Task() handle TX to prevent recursive calling */
+#ifndef SERIAL_MANAGER_TASK_HANDLE_TX
+#define SERIAL_MANAGER_TASK_HANDLE_TX (0U)
+#endif
+#if (defined(SERIAL_MANAGER_TASK_HANDLE_TX) && (SERIAL_MANAGER_TASK_HANDLE_TX > 0U))
+#ifndef OSA_USED
+#error When SERIAL_MANAGER_TASK_HANDLE_TX=1, OSA_USED must be set.
+#endif
+#endif
+
+/*! @brief Set the default delay time in ms used by SerialManager_TimeDelay(). */
+#ifndef SERIAL_MANAGER_TIME_DELAY_DEFAULT_VALUE
+#define SERIAL_MANAGER_TIME_DELAY_DEFAULT_VALUE (1U)
+#endif
+
+/*! @brief Enable or disable SerialManager_Task() handle RX data available notify */
+#ifndef SERIAL_MANAGER_TASK_HANDLE_RX_AVAILABLE_NOTIFY
+#define SERIAL_MANAGER_TASK_HANDLE_RX_AVAILABLE_NOTIFY (0U)
+#endif
+#if (defined(SERIAL_MANAGER_TASK_HANDLE_RX_AVAILABLE_NOTIFY) && (SERIAL_MANAGER_TASK_HANDLE_RX_AVAILABLE_NOTIFY > 0U))
+#ifndef OSA_USED
+#error When SERIAL_MANAGER_TASK_HANDLE_RX_AVAILABLE_NOTIFY=1, OSA_USED must be set.
+#endif
 #endif
 
 /*! @brief Set serial manager write handle size */
 #if (defined(SERIAL_MANAGER_NON_BLOCKING_MODE) && (SERIAL_MANAGER_NON_BLOCKING_MODE > 0U))
-#define SERIAL_MANAGER_WRITE_HANDLE_SIZE (44U)
-#define SERIAL_MANAGER_READ_HANDLE_SIZE  (44U)
+#define SERIAL_MANAGER_WRITE_HANDLE_SIZE       (44U)
+#define SERIAL_MANAGER_READ_HANDLE_SIZE        (44U)
+#define SERIAL_MANAGER_WRITE_BLOCK_HANDLE_SIZE (4U)
+#define SERIAL_MANAGER_READ_BLOCK_HANDLE_SIZE  (4U)
 #else
-#define SERIAL_MANAGER_WRITE_HANDLE_SIZE (4U)
-#define SERIAL_MANAGER_READ_HANDLE_SIZE  (4U)
+#define SERIAL_MANAGER_WRITE_HANDLE_SIZE       (4U)
+#define SERIAL_MANAGER_READ_HANDLE_SIZE        (4U)
+#define SERIAL_MANAGER_WRITE_BLOCK_HANDLE_SIZE (4U)
+#define SERIAL_MANAGER_READ_BLOCK_HANDLE_SIZE  (4U)
 #endif
 
 #if (defined(SERIAL_PORT_TYPE_UART) && (SERIAL_PORT_TYPE_UART > 0U))
-#include "serial_port_uart.h"
+#include "fsl_component_serial_port_uart.h"
+#endif
+
+#if (defined(SERIAL_PORT_TYPE_RPMSG) && (SERIAL_PORT_TYPE_RPMSG > 0U))
+#include "fsl_component_serial_port_rpmsg.h"
 #endif
 
 #if (defined(SERIAL_PORT_TYPE_USBCDC) && (SERIAL_PORT_TYPE_USBCDC > 0U))
@@ -67,20 +122,20 @@
 #error The serial manager blocking mode cannot be supported for USB CDC.
 #endif
 
-#include "serial_port_usb.h"
+#include "fsl_component_serial_port_usb.h"
 #endif
 
 #if (defined(SERIAL_PORT_TYPE_SWO) && (SERIAL_PORT_TYPE_SWO > 0U))
-#include "serial_port_swo.h"
+#include "fsl_component_serial_port_swo.h"
 #endif
 
-#if (defined(SERIAL_PORT_TYPE_USBCDC_VIRTUAL) && (SERIAL_PORT_TYPE_USBCDC_VIRTUAL > 0U))
+#if (defined(SERIAL_PORT_TYPE_VIRTUAL) && (SERIAL_PORT_TYPE_VIRTUAL > 0U))
 
 #if !(defined(SERIAL_MANAGER_NON_BLOCKING_MODE) && (SERIAL_MANAGER_NON_BLOCKING_MODE > 0U))
 #error The serial manager blocking mode cannot be supported for USB CDC.
 #endif
 
-#include "serial_port_usb_virtual.h"
+#include "fsl_component_serial_port_virtual.h"
 #endif
 
 #define SERIAL_MANAGER_HANDLE_SIZE_TEMP 0U
@@ -111,11 +166,21 @@
 
 #endif
 
-#if (defined(SERIAL_PORT_TYPE_USBCDC_VIRTUAL) && (SERIAL_PORT_TYPE_USBCDC_VIRTUAL > 0U))
+#if (defined(SERIAL_PORT_TYPE_VIRTUAL) && (SERIAL_PORT_TYPE_VIRTUAL > 0U))
 
-#if (SERIAL_PORT_USB_VIRTUAL_HANDLE_SIZE > SERIAL_MANAGER_HANDLE_SIZE_TEMP)
+#if (SERIAL_PORT_VIRTUAL_HANDLE_SIZE > SERIAL_MANAGER_HANDLE_SIZE_TEMP)
 #undef SERIAL_MANAGER_HANDLE_SIZE_TEMP
-#define SERIAL_MANAGER_HANDLE_SIZE_TEMP SERIAL_PORT_USB_VIRTUAL_HANDLE_SIZE
+#define SERIAL_MANAGER_HANDLE_SIZE_TEMP SERIAL_PORT_VIRTUAL_HANDLE_SIZE
+#endif
+
+#endif
+
+#if (defined(SERIAL_PORT_TYPE_RPMSG) && (SERIAL_PORT_TYPE_RPMSG > 0U))
+
+#if (SERIAL_PORT_RPMSG_HANDLE_SIZE > SERIAL_MANAGER_HANDLE_SIZE_TEMP)
+#undef SERIAL_MANAGER_HANDLE_SIZE_TEMP
+#define SERIAL_MANAGER_HANDLE_SIZE_TEMP SERIAL_PORT_RPMSG_HANDLE_SIZE
+
 #endif
 
 #endif
@@ -123,14 +188,16 @@
 /*! @brief SERIAL_PORT_UART_HANDLE_SIZE/SERIAL_PORT_USB_CDC_HANDLE_SIZE + serial manager dedicated size */
 #if ((defined(SERIAL_MANAGER_HANDLE_SIZE_TEMP) && (SERIAL_MANAGER_HANDLE_SIZE_TEMP > 0U)))
 #else
-#error SERIAL_PORT_TYPE_UART, SERIAL_PORT_TYPE_USBCDC, SERIAL_PORT_TYPE_SWO and SERIAL_PORT_TYPE_USBCDC_VIRTUAL should not be cleared at same time.
+#error SERIAL_PORT_TYPE_UART, SERIAL_PORT_TYPE_USBCDC, SERIAL_PORT_TYPE_SWO and SERIAL_PORT_TYPE_VIRTUAL should not be cleared at same time.
 #endif
 
 /*! @brief Definition of serial manager handle size. */
 #if (defined(SERIAL_MANAGER_NON_BLOCKING_MODE) && (SERIAL_MANAGER_NON_BLOCKING_MODE > 0U))
-#define SERIAL_MANAGER_HANDLE_SIZE (SERIAL_MANAGER_HANDLE_SIZE_TEMP + 120U)
+#define SERIAL_MANAGER_HANDLE_SIZE       (SERIAL_MANAGER_HANDLE_SIZE_TEMP + 124U)
+#define SERIAL_MANAGER_BLOCK_HANDLE_SIZE (SERIAL_MANAGER_HANDLE_SIZE_TEMP + 16U)
 #else
-#define SERIAL_MANAGER_HANDLE_SIZE (SERIAL_MANAGER_HANDLE_SIZE_TEMP + 12U)
+#define SERIAL_MANAGER_HANDLE_SIZE       (SERIAL_MANAGER_HANDLE_SIZE_TEMP + 12U)
+#define SERIAL_MANAGER_BLOCK_HANDLE_SIZE (SERIAL_MANAGER_HANDLE_SIZE_TEMP + 12U)
 #endif
 
 /*!
@@ -150,7 +217,8 @@
  */
 #define SERIAL_MANAGER_HANDLE_DEFINE(name) \
     uint32_t name[((SERIAL_MANAGER_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
-
+#define SERIAL_MANAGER_BLOCK_HANDLE_DEFINE(name) \
+    uint32_t name[((SERIAL_MANAGER_BLOCK_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
 /*!
  * @brief Defines the serial manager write handle
  *
@@ -168,7 +236,8 @@
  */
 #define SERIAL_MANAGER_WRITE_HANDLE_DEFINE(name) \
     uint32_t name[((SERIAL_MANAGER_WRITE_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
-
+#define SERIAL_MANAGER_WRITE_BLOCK_HANDLE_DEFINE(name) \
+    uint32_t name[((SERIAL_MANAGER_WRITE_BLOCK_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
 /*!
  * @brief Defines the serial manager read handle
  *
@@ -186,10 +255,18 @@
  */
 #define SERIAL_MANAGER_READ_HANDLE_DEFINE(name) \
     uint32_t name[((SERIAL_MANAGER_READ_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
-
+#define SERIAL_MANAGER_READ_BLOCK_HANDLE_DEFINE(name) \
+    uint32_t name[((SERIAL_MANAGER_READ_BLOCK_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
+#if defined(OSA_USED)
+#include "fsl_component_common_task.h"
+#endif
 /*! @brief Macro to determine whether use common task. */
 #ifndef SERIAL_MANAGER_USE_COMMON_TASK
-#define SERIAL_MANAGER_USE_COMMON_TASK (1U)
+#define SERIAL_MANAGER_USE_COMMON_TASK (0U)
+#if (defined(COMMON_TASK_ENABLE) && (COMMON_TASK_ENABLE == 0U))
+#undef SERIAL_MANAGER_USE_COMMON_TASK
+#define SERIAL_MANAGER_USE_COMMON_TASK (0U)
+#endif
 #endif
 
 /*! @brief Macro to set serial manager task priority. */
@@ -214,23 +291,31 @@ typedef void *serial_read_handle_t;
 /*! @brief serial port type*/
 typedef enum _serial_port_type
 {
-    kSerialPort_Uart = 1U,     /*!< Serial port UART */
-    kSerialPort_UsbCdc,        /*!< Serial port USB CDC */
-    kSerialPort_Swo,           /*!< Serial port SWO */
-    kSerialPort_UsbCdcVirtual, /*!< Serial port USB CDC Virtual */
+    kSerialPort_Uart = 1U, /*!< Serial port UART */
+    kSerialPort_UsbCdc,    /*!< Serial port USB CDC */
+    kSerialPort_Swo,       /*!< Serial port SWO */
+    kSerialPort_Virtual,   /*!< Serial port Virtual */
+    kSerialPort_Rpmsg,     /*!< Serial port RPMSG */
 } serial_port_type_t;
 
+/*! @brief serial manager type*/
+typedef enum _serial_manager_type
+{
+    kSerialManager_NonBlocking = 0x0U,    /*!< None blocking handle*/
+    kSerialManager_Blocking    = 0x8F41U, /*!< Blocking handle*/
+} serial_manager_type_t;
 /*! @brief serial manager config structure*/
 typedef struct _serial_manager_config
 {
-#if defined(DEBUG_CONSOLE_TRANSFER_NON_BLOCKING)
+#if defined(SERIAL_MANAGER_NON_BLOCKING_MODE)
     uint8_t *ringBuffer;     /*!< Ring buffer address, it is used to buffer data received by the hardware.
                                   Besides, the memory space cannot be free during the lifetime of the serial
                                   manager module. */
     uint32_t ringBufferSize; /*!< The size of the ring buffer */
 #endif
-    serial_port_type_t type; /*!< Serial port type */
-    void *portConfig;        /*!< Serial port configuration */
+    serial_port_type_t type;         /*!< Serial port type */
+    serial_manager_type_t blockType; /*!< Serial manager port type */
+    void *portConfig;                /*!< Serial port configuration */
 } serial_manager_config_t;
 
 /*! @brief serial manager error code*/
@@ -299,6 +384,8 @@ extern "C" {
  *   uartConfig.stopBitCount = kSerialManager_UartOneStopBit;
  *   uartConfig.enableRx = 1;
  *   uartConfig.enableTx = 1;
+ *   uartConfig.enableRxRTS = 0;
+ *   uartConfig.enableTxCTS = 0;
  *   config.portConfig = &uartConfig;
  *   SerialManager_Init((serial_handle_t)s_serialHandle, &config);
  *  @endcode
@@ -328,7 +415,7 @@ extern "C" {
  * @retval kStatus_SerialManager_Error An error occurred.
  * @retval kStatus_SerialManager_Success The Serial Manager module initialization succeed.
  */
-serial_manager_status_t SerialManager_Init(serial_handle_t serialHandle, serial_manager_config_t *config);
+serial_manager_status_t SerialManager_Init(serial_handle_t serialHandle, const serial_manager_config_t *config);
 
 /*!
  * @brief De-initializes the serial manager module instance.
