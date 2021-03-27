@@ -109,10 +109,19 @@ inline void SC_UnitTest_AutoRefreshAddMenu(menu_list_t *menu)
 }
 #endif // ! HITSIC_USE_APP_MENU
 
+static pitmgr_handle_t sc_unitTest_pitHandle =
+    {
+        .tickInterval = 64UL,
+        .tickOffset = 3UL,
+        .handler = sc::SC_UnitTest_AdcRefreshPitTask,
+        .pptFlag = pitmgr_pptEnable,
+        .userData = NULL,
+    };
+
 inline void SC_UnitTest_AutoRefresh(void)
 {
-
-    pitMgr_t::insert(64U, 3U, sc::SC_UnitTest_AdcRefreshPitTask, pitMgr_t::enable);
+    extern pitmgr_t pitMain;
+    PITMGR_HandleInsert(&pitMain, &sc_unitTest_pitHandle);
 }
 
 } // namespace sc

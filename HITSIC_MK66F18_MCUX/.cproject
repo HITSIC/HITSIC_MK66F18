@@ -63,6 +63,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities_test}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/mlib-0.5.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/inc}&quot;"/>
@@ -146,6 +147,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities_test}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/mlib-0.5.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/plugins/types/struct2json/inc}&quot;"/>
@@ -355,7 +357,7 @@
 					<sourceEntries>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry excluding="extlib_port/EasyFlash-4.0.0|legacy_drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/d_mk66f18"/>
-						<entry excluding="extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
+						<entry excluding="extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="board"/>
 						<entry excluding="uart/fsl_adapter_uart.c|uart/uart_adapter.c" flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="component"/>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="device"/>
@@ -726,7 +728,7 @@
 					<sourceEntries>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry excluding="extlib_port/EasyFlash-4.0.0|legacy_drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/d_mk66f18"/>
-						<entry excluding="extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
+						<entry excluding="extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="board"/>
 						<entry excluding="uart/fsl_adapter_uart.c|uart/uart_adapter.c" flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="component"/>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="device"/>
@@ -768,10 +770,10 @@
 &lt;vendor&gt;NXP&lt;/vendor&gt;&#13;
 &lt;memory can_program="true" id="Flash" is_ro="true" size="1024" type="Flash"/&gt;&#13;
 &lt;memory id="RAM" size="256" type="RAM"/&gt;&#13;
-&lt;memoryInstance derived_from="Flash" driver="FTFE_4K.cfx" id="PROGRAM_FLASH" location="0x0" size="0x100000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" id="SRAM_UPPER" location="0x20000000" size="0x30000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" id="SRAM_LOWER" location="0x1fff0000" size="0x10000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" id="FLEX_RAM" location="0x14000000" size="0x1000"/&gt;&#13;
+&lt;memoryInstance derived_from="Flash" driver="FTFE_4K.cfx" id="PROGRAM_FLASH" location="0x00000000" size="0x00100000"/&gt;&#13;
+&lt;memoryInstance derived_from="RAM" id="SRAM_UPPER" location="0x20000000" size="0x00030000"/&gt;&#13;
+&lt;memoryInstance derived_from="RAM" id="SRAM_LOWER" location="0x1fff0000" size="0x00010000"/&gt;&#13;
+&lt;memoryInstance derived_from="RAM" id="FLEX_RAM" location="0x14000000" size="0x00001000"/&gt;&#13;
 &lt;/chip&gt;&#13;
 &lt;processor&gt;&#13;
 &lt;name gcc_name="cortex-m4"&gt;Cortex-M4&lt;/name&gt;&#13;

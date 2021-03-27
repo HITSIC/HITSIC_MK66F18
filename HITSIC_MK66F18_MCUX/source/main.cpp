@@ -45,17 +45,16 @@
  * limitations under the License.
  */
 #include "hitsic_common.h"
+#include <app_svbmp.h>
+#include <drv_cam_zf9v034.h>
+#include <drv_disp_ssd1306.h>
+#include <drv_dmadvp.h>
+#include <drv_ftfx_flash.h>
+#include <sys_pitmgr.h>
 
 /** HITSIC_Module_DRV */
-#include "drv_ftfx_flash.hpp"
-#include "drv_disp_ssd1306.hpp"
 #include "drv_imu_invensense.hpp"
-#include "drv_dmadvp.hpp"
-#include "drv_cam_zf9v034.hpp"
-
-/** HITSIC_Module_SYS */
-#include "sys_pitmgr.hpp"
-#include "sys_extint.hpp"
+#include "sys_extint.h"
 #include "sys_uartmgr.hpp"
 #include "cm_backtrace.h"
 #include "easyflash.h"
@@ -65,9 +64,6 @@
 
 /** HITSIC_Module_APP */
 #include "app_menu.hpp"
-#include "app_svbmp.hpp"
-
-/** FATFS */
 #include "ff.h"
 #include "sdmmc_config.h"
 FATFS fatfs;                                   //逻辑驱动器的工作区
@@ -76,17 +72,17 @@ FATFS fatfs;                                   //逻辑驱动器的工作区
 #include "sc_ftm.h"
 
 /** HITSIC_Module_TEST */
-#include "drv_cam_zf9v034_test.hpp"
-#include "app_menu_test.hpp"
+#include <drv_cam_zf9v034_test.h>
+#include <app_menu_test.h>
 #include "drv_imu_invensense_test.hpp"
-#include "sys_fatfs_test.hpp"
-#include "sys_fatfs_diskioTest.hpp"
-#include "extlib_easyflash_test.hpp"
+#include <sys_fatfs_test.h>
+#include <sys_fatfs_diskioTest.h>
+#include <extlib_easyflash_test.h>
 
 /** SCLIB_TEST */
 #include "sc_test.hpp"
 
-
+pitmgr_t pitMain;
 
 void MENU_DataSetUp(void);
 
@@ -132,7 +128,12 @@ void main(void)
     FLASH_SimpleInit();
     //easyflash_init();
     /** 初始化PIT中断管理器 */
-    pitMgr_t::init();
+    NVIC_SetPriority(LPTMR0_IRQn, 4U);
+    EnableIRQ(LPTMR0_IRQn);
+
+    PITMGR_Init(&pitMain, 1000U);
+    LPTMR_StartTimer(LPTMR0);
+
     /** 初始化I/O中断管理器 */
     extInt_t::init();
     /** 初始化菜单 */
@@ -155,7 +156,7 @@ void main(void)
     //cDISP_SSD1306_BufferUpload((uint8_t*) DISP_image_100thAnniversary);
     //DISP_SSD1306_delay_ms(100);
     //DISP_SSD1306_BufferUploadDMA((uint8_t*) DISP_image_100thAnniversary);
-    CAM_ZF9V034_UnitTest();
+    //CAM_ZF9V034_UnitTest();
     //DISP_SSD1306_BufferUpload((uint8_t*) &dispBuffer);
 
     //EF_BasicTest();
