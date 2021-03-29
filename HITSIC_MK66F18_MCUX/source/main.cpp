@@ -82,7 +82,9 @@ FATFS fatfs;                                   //逻辑驱动器的工作区
 /** SCLIB_TEST */
 #include "sc_test.hpp"
 
-pitmgr_t pitMain;
+pitmgr_t pitmgr_main;
+
+extint_t extint_porta, extint_portb, extint_portc, extint_portd, extint_porte;
 
 void MENU_DataSetUp(void);
 
@@ -131,11 +133,26 @@ void main(void)
     NVIC_SetPriority(LPTMR0_IRQn, 4U);
     EnableIRQ(LPTMR0_IRQn);
 
-    PITMGR_Init(&pitMain, 1000U);
+    PITMGR_Init(&pitmgr_main, 1000U);
     LPTMR_StartTimer(LPTMR0);
 
     /** 初始化I/O中断管理器 */
-    extInt_t::init();
+    NVIC_SetPriority(PORTA_IRQn, 2);
+    NVIC_SetPriority(PORTB_IRQn, 2);
+    NVIC_SetPriority(PORTC_IRQn, 2);
+    NVIC_SetPriority(PORTD_IRQn, 2);
+    NVIC_SetPriority(PORTE_IRQn, 2);
+    EnableIRQ(PORTA_IRQn);
+    EnableIRQ(PORTB_IRQn);
+    EnableIRQ(PORTC_IRQn);
+    EnableIRQ(PORTD_IRQn);
+    EnableIRQ(PORTE_IRQn);
+
+    EXTINT_Init(&extint_porta);
+    EXTINT_Init(&extint_portb);
+    EXTINT_Init(&extint_portc);
+    EXTINT_Init(&extint_portd);
+    EXTINT_Init(&extint_porte);
     /** 初始化菜单 */
     MENU_Init();
     MENU_Data_NvmReadRegionConfig();
@@ -156,7 +173,7 @@ void main(void)
     //cDISP_SSD1306_BufferUpload((uint8_t*) DISP_image_100thAnniversary);
     //DISP_SSD1306_delay_ms(100);
     //DISP_SSD1306_BufferUploadDMA((uint8_t*) DISP_image_100thAnniversary);
-    //CAM_ZF9V034_UnitTest();
+    CAM_ZF9V034_UnitTest();
     //DISP_SSD1306_BufferUpload((uint8_t*) &dispBuffer);
 
     //EF_BasicTest();

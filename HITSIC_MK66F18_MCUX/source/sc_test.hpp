@@ -120,8 +120,8 @@ static pitmgr_handle_t sc_unitTest_pitHandle =
 
 inline void SC_UnitTest_AutoRefresh(void)
 {
-    extern pitmgr_t pitMain;
-    PITMGR_HandleInsert(&pitMain, &sc_unitTest_pitHandle);
+    extern pitmgr_t pitmgr_main;
+    PITMGR_HandleInsert(&pitmgr_main, &sc_unitTest_pitHandle);
 }
 
 } // namespace sc
