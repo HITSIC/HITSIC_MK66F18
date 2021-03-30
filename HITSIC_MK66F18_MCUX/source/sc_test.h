@@ -5,11 +5,11 @@
  *      Author: 孙唯
  */
 
-#ifndef SC_TEST_HPP_
-#define SC_TEST_HPP_
+#ifndef SC_TEST_H_
+#define SC_TEST_H_
 
+#include <app_menu.h>
 #include "hitsic_common.h"
-#include "app_menu.hpp"
 #include "sc_adc.h"
 #include "sc_ftm.h"
 
@@ -127,4 +127,4 @@ inline void SC_UnitTest_AutoRefresh(void)
 } // namespace sc
 
 
-#endif /* SC_TEST_HPP_ */
+#endif /* SC_TEST_H_ */

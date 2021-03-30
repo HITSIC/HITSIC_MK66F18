@@ -23,7 +23,6 @@
 
 #ifndef _SC_UPLOAD_H
 #define _SC_UPLOAD_H
-#include "sys_uartmgr.hpp"
 #include "fsl_uart.h"
 
 #define SCHOST_UART_INST (UART0)

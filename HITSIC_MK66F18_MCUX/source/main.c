@@ -44,42 +44,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "hitsic_common.h"
-#include <app_svbmp.h>
+/** HITSIC_Module_DRV */
 #include <drv_cam_zf9v034.h>
 #include <drv_disp_ssd1306.h>
 #include <drv_dmadvp.h>
 #include <drv_ftfx_flash.h>
-#include <lib_graphic.h>
-#include <sys_pitmgr.h>
-
-/** HITSIC_Module_DRV */
 #include "drv_imu_invensense.hpp"
-#include "sys_extint.h"
-#include "sys_uartmgr.hpp"
-#include "cm_backtrace.h"
-#include "easyflash.h"
+#include <sys_pitmgr.h>
+#include <sys_extint.h>
 
 /** HITSIC_Module_LIB */
-#include "app_menu.hpp"
-#include "ff.h"
-#include "sdmmc_config.h"
-FATFS fatfs;                                   //逻辑驱动器的工作区
-
+#include <lib_graphic.h>
+#include <app_svbmp.h>
+#include <app_menu.h>
 #include "sc_adc.h"
 #include "sc_ftm.h"
 
-/** HITSIC_Module_TEST */
-#include <drv_cam_zf9v034_test.h>
-#include <app_menu_test.h>
-#include "drv_imu_invensense_test.hpp"
-#include <sys_fatfs_test.h>
-#include <sys_fatfs_diskioTest.h>
-#include <extlib_easyflash_test.h>
 
-/** SCLIB_TEST */
-#include "sc_test.hpp"
-
+#include "cm_backtrace.h"
+#include "easyflash.h"
+#include "sdmmc_config.h"
+#include "ff.h"
+FATFS fatfs;                                   //逻辑驱动器的工作区
 pitmgr_t pitmgr_main;
 
 extint_t extint_porta, extint_portb, extint_portc, extint_portd, extint_porte;
@@ -95,6 +81,18 @@ inv::i2cInterface_t imu_i2c(nullptr, IMU_INV_I2cRxBlocking, IMU_INV_I2cTxBlockin
 inv::mpu6050_t imu_6050(imu_i2c);
 
 disp_ssd1306_fb_t dispBuffer;
+
+/** HITSIC_Module_TEST */
+#include <drv_cam_zf9v034_test.h>
+#include <app_menu_test.h>
+#include "drv_imu_invensense_test.hpp"
+#include <sys_fatfs_test.h>
+#include <sys_fatfs_diskioTest.h>
+#include <extlib_easyflash_test.h>
+
+/** SCLIB_TEST */
+#include <sc_test.h>
+
 
 void main(void)
 {
