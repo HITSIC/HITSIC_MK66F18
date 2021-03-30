@@ -50,6 +50,7 @@
 #include <drv_disp_ssd1306.h>
 #include <drv_dmadvp.h>
 #include <drv_ftfx_flash.h>
+#include <lib_graphic.h>
 #include <sys_pitmgr.h>
 
 /** HITSIC_Module_DRV */
@@ -60,9 +61,6 @@
 #include "easyflash.h"
 
 /** HITSIC_Module_LIB */
-#include "lib_graphic.hpp"
-
-/** HITSIC_Module_APP */
 #include "app_menu.hpp"
 #include "ff.h"
 #include "sdmmc_config.h"
@@ -96,8 +94,7 @@ void CAM_ZF9V034_DmaCallback(edma_handle_t *handle, void *userData, bool transfe
 inv::i2cInterface_t imu_i2c(nullptr, IMU_INV_I2cRxBlocking, IMU_INV_I2cTxBlocking);
 inv::mpu6050_t imu_6050(imu_i2c);
 
-disp_ssd1306_frameBuffer_t dispBuffer;
-graphic::bufPrint0608_t<disp_ssd1306_frameBuffer_t> bufPrinter(dispBuffer);
+disp_ssd1306_fb_t dispBuffer;
 
 void main(void)
 {
