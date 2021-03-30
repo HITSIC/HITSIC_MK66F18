@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "inc_stdlib.hpp"
+#include <inc_stdlib.h>
 #include "hitsic_common.h"
 
 #define RETARGET_INST   (LPUART0)
