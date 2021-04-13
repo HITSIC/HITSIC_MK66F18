@@ -5,11 +5,11 @@
  *      Author: 孙唯
  */
 
-#ifndef SC_TEST_HPP_
-#define SC_TEST_HPP_
+#ifndef SC_TEST_H_
+#define SC_TEST_H_
 
+#include <app_menu.h>
 #include "hitsic_common.h"
-#include "app_menu.hpp"
 #include "sc_adc.h"
 #include "sc_ftm.h"
 
@@ -109,13 +109,22 @@ inline void SC_UnitTest_AutoRefreshAddMenu(menu_list_t *menu)
 }
 #endif // ! HITSIC_USE_APP_MENU
 
+static pitmgr_handle_t sc_unitTest_pitHandle =
+    {
+        .tickInterval = 64UL,
+        .tickOffset = 3UL,
+        .handler = sc::SC_UnitTest_AdcRefreshPitTask,
+        .pptFlag = pitmgr_pptEnable,
+        .userData = NULL,
+    };
+
 inline void SC_UnitTest_AutoRefresh(void)
 {
-
-    pitMgr_t::insert(64U, 3U, sc::SC_UnitTest_AdcRefreshPitTask, pitMgr_t::enable);
+    extern pitmgr_t pitmgr_main;
+    PITMGR_HandleInsert(&pitmgr_main, &sc_unitTest_pitHandle);
 }
 
 } // namespace sc
 
 
-#endif /* SC_TEST_HPP_ */
+#endif /* SC_TEST_H_ */

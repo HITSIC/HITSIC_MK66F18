@@ -44,49 +44,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "hitsic_common.h"
-
 /** HITSIC_Module_DRV */
-#include "drv_ftfx_flash.hpp"
-#include "drv_disp_ssd1306.hpp"
-#include "drv_imu_invensense.hpp"
-#include "drv_dmadvp.hpp"
-#include "drv_cam_zf9v034.hpp"
+#include <drv_cam_zf9v034.h>
+#include <drv_disp_ssd1306.h>
+#include <drv_dmadvp.h>
+#include <drv_ftfx_flash.h>
 
-/** HITSIC_Module_SYS */
-#include "sys_pitmgr.hpp"
-#include "sys_extint.hpp"
-#include "sys_uartmgr.hpp"
-#include "cm_backtrace.h"
-#include "easyflash.h"
+#include <sys_pitmgr.h>
+#include <sys_extint.h>
 
 /** HITSIC_Module_LIB */
-#include "lib_graphic.hpp"
-
-/** HITSIC_Module_APP */
-#include "app_menu.hpp"
-#include "app_svbmp.hpp"
-
-/** FATFS */
-#include "ff.h"
-#include "sdmmc_config.h"
-FATFS fatfs;                                   //逻辑驱动器的工作区
-
+#include <lib_graphic.h>
+#include <app_svbmp.h>
+#include <app_menu.h>
 #include "sc_adc.h"
 #include "sc_ftm.h"
 
-/** HITSIC_Module_TEST */
-#include "drv_cam_zf9v034_test.hpp"
-#include "app_menu_test.hpp"
-#include "drv_imu_invensense_test.hpp"
-#include "sys_fatfs_test.hpp"
-#include "sys_fatfs_diskioTest.hpp"
-#include "extlib_easyflash_test.hpp"
 
-/** SCLIB_TEST */
-#include "sc_test.hpp"
+#include "cm_backtrace.h"
+#include "easyflash.h"
+#include "drv_imu_invensense.h"
 
 
+#include "sdmmc_config.h"
+#include "ff.h"
+FATFS fatfs;                                   //逻辑驱动器的工作区
+pitmgr_t pitmgr_main;
+
+extint_t extint_porta, extint_portb, extint_portc, extint_portd, extint_porte;
 
 void MENU_DataSetUp(void);
 
@@ -95,11 +80,21 @@ dmadvp_config_t dmadvpCfg;
 dmadvp_handle_t dmadvpHandle;
 void CAM_ZF9V034_DmaCallback(edma_handle_t *handle, void *userData, bool transferDone, uint32_t tcds);
 
-inv::i2cInterface_t imu_i2c(nullptr, IMU_INV_I2cRxBlocking, IMU_INV_I2cTxBlocking);
-inv::mpu6050_t imu_6050(imu_i2c);
+disp_ssd1306_fb_t dispBuffer;
 
-disp_ssd1306_frameBuffer_t dispBuffer;
-graphic::bufPrint0608_t<disp_ssd1306_frameBuffer_t> bufPrinter(dispBuffer);
+/** HITSIC_Module_TEST */
+#include <drv_cam_zf9v034_test.h>
+#include <app_menu_test.h>
+#include "drv_imu_invensense_test.hpp"
+#include <sys_fatfs_test.h>
+#include <sys_fatfs_diskioTest.h>
+#include <extlib_easyflash_test.h>
+
+#include <drv_invimu_test.h>
+
+/** SCLIB_TEST */
+#include <sc_test.h>
+
 
 void main(void)
 {
@@ -132,9 +127,29 @@ void main(void)
     FLASH_SimpleInit();
     //easyflash_init();
     /** 初始化PIT中断管理器 */
-    pitMgr_t::init();
+    NVIC_SetPriority(LPTMR0_IRQn, 4U);
+    EnableIRQ(LPTMR0_IRQn);
+
+    PITMGR_Init(&pitmgr_main, 1000U);
+    LPTMR_StartTimer(LPTMR0);
+
     /** 初始化I/O中断管理器 */
-    extInt_t::init();
+    NVIC_SetPriority(PORTA_IRQn, 2);
+    NVIC_SetPriority(PORTB_IRQn, 2);
+    NVIC_SetPriority(PORTC_IRQn, 2);
+    NVIC_SetPriority(PORTD_IRQn, 2);
+    NVIC_SetPriority(PORTE_IRQn, 2);
+    EnableIRQ(PORTA_IRQn);
+    EnableIRQ(PORTB_IRQn);
+    EnableIRQ(PORTC_IRQn);
+    EnableIRQ(PORTD_IRQn);
+    EnableIRQ(PORTE_IRQn);
+
+    EXTINT_Init(&extint_porta);
+    EXTINT_Init(&extint_portb);
+    EXTINT_Init(&extint_portc);
+    EXTINT_Init(&extint_portd);
+    EXTINT_Init(&extint_porte);
     /** 初始化菜单 */
     MENU_Init();
     MENU_Data_NvmReadRegionConfig();
@@ -166,6 +181,8 @@ void main(void)
 //    menu_list_t *list = MENU_DirGetList("/TestList");
 //    if(true);
 //    menu_itemIfce_t *itme = MENU_DirGetItem(list, "region_i");
+
+    INV_IMU_Example(0, NULL);
 
     while (true)
     {

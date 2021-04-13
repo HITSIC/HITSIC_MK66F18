@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -255,6 +255,24 @@ void EDMA_SetMinorOffsetConfig(DMA_Type *base, uint32_t channel, const edma_mino
         (DMA_NBYTES_MLOFFYES_SMLOE(config->enableSrcMinorOffset) |
          DMA_NBYTES_MLOFFYES_DMLOE(config->enableDestMinorOffset) | DMA_NBYTES_MLOFFYES_MLOFF(config->minorOffset));
     base->TCD[channel].NBYTES_MLOFFYES = tmpreg;
+}
+
+/*!
+ * brief Configures the eDMA channel TCD major offset feature.
+ *
+ * Adjustment value added to the source address at the completion of the major iteration count
+ *
+ * param base eDMA peripheral base address.
+ * param channel edma channel number.
+ * param sourceOffset source address offset.
+ * param destOffset destination address offset.
+ */
+void EDMA_SetMajorOffsetConfig(DMA_Type *base, uint32_t channel, int32_t sourceOffset, int32_t destOffset)
+{
+    assert(channel < (uint32_t)FSL_FEATURE_EDMA_MODULE_CHANNEL);
+
+    base->TCD[channel].SLAST     = (uint32_t)sourceOffset;
+    base->TCD[channel].DLAST_SGA = (uint32_t)destOffset;
 }
 
 /*!
@@ -529,6 +547,24 @@ void EDMA_TcdSetMinorOffsetConfig(edma_tcd_t *tcd, const edma_minor_offset_confi
         (DMA_NBYTES_MLOFFYES_SMLOE(config->enableSrcMinorOffset) |
          DMA_NBYTES_MLOFFYES_DMLOE(config->enableDestMinorOffset) | DMA_NBYTES_MLOFFYES_MLOFF(config->minorOffset));
     tcd->NBYTES = tmpreg;
+}
+
+/*!
+ * brief Configures the eDMA TCD major offset feature.
+ *
+ * Adjustment value added to the source address at the completion of the major iteration count
+ *
+ * param tcd A point to the TCD structure.
+ * param sourceOffset source address offset.
+ * param destOffset destination address offset.
+ */
+void EDMA_TcdSetMajorOffsetConfig(edma_tcd_t *tcd, int32_t sourceOffset, int32_t destOffset)
+{
+    assert(tcd != NULL);
+    assert(((uint32_t)tcd & 0x1FU) == 0U);
+
+    tcd->SLAST     = (uint32_t)sourceOffset;
+    tcd->DLAST_SGA = (uint32_t)destOffset;
 }
 
 /*!
@@ -1272,6 +1308,10 @@ void EDMA_AbortTransfer(edma_handle_t *handle)
     handle->base->TCD[handle->channel].CSR = 0;
     /* Cancel all next TCD transfer. */
     handle->base->TCD[handle->channel].DLAST_SGA = 0;
+    /* clear the CITER and BITER to make sure the TCD register in a correct state for next calling of
+     * EDMA_SubmitTransfer */
+    handle->base->TCD[handle->channel].CITER_ELINKNO = 0;
+    handle->base->TCD[handle->channel].BITER_ELINKNO = 0;
 
     /* Handle the tcd */
     if (handle->tcdPool != NULL)
@@ -1384,17 +1424,22 @@ void EDMA_HandleIRQ(edma_handle_t *handle)
             (handle->callback)(handle, handle->userData, transfer_done, tcds_done);
         }
 
-        /* clear the DONE bit here is meaningful for below cases:
-         *1.A new TCD has been loaded to EDMA already:
+        /*
+         * 1.clear the DONE bit here is meaningful for below cases:
+         * A new TCD has been loaded to EDMA already:
          * need to clear the DONE bit in the IRQ handler to avoid TCD in EDMA been overwritten
          * if peripheral request isn't coming before next transfer request.
-         *2.A new TCD has not been loaded to EDMA:
-         * for the case that transfer request occur in the privious edma callback, this is a case that doesn't
-         * need scatter gather, so keep DONE bit during the next transfer request will re-install the TCD.
+         * 2. Don't clear DONE bit for below case,
+         * for the case that transfer request submitted in the privious edma callback, this is a case that doesn't
+         * need scatter gather, so keep DONE bit during the next transfer request submission will re-install the TCD and
+         * the DONE bit will be cleared together with TCD re-installation.
          */
         if (transfer_done)
         {
-            handle->base->CDNE = handle->channel;
+            if ((handle->base->TCD[handle->channel].CSR & DMA_CSR_ESG_MASK) != 0U)
+            {
+                handle->base->CDNE = handle->channel;
+            }
         }
     }
 }
@@ -1409,6 +1454,7 @@ extern "C"{
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && (FSL_FEATURE_EDMA_MODULE_CHANNEL == 8U)
 
 #if defined(DMA0)
+void DMA0_04_DriverIRQHandler(void);
 void DMA0_04_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1422,6 +1468,7 @@ void DMA0_04_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_15_DriverIRQHandler(void);
 void DMA0_15_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1435,6 +1482,7 @@ void DMA0_15_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_26_DriverIRQHandler(void);
 void DMA0_26_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1448,6 +1496,7 @@ void DMA0_26_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_37_DriverIRQHandler(void);
 void DMA0_37_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1465,6 +1514,7 @@ void DMA0_37_DriverIRQHandler(void)
 #if defined(DMA1)
 
 #if defined(DMA0)
+void DMA1_04_DriverIRQHandler(void);
 void DMA1_04_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1478,6 +1528,7 @@ void DMA1_04_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_15_DriverIRQHandler(void);
 void DMA1_15_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1491,6 +1542,7 @@ void DMA1_15_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_26_DriverIRQHandler(void);
 void DMA1_26_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1504,6 +1556,7 @@ void DMA1_26_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_37_DriverIRQHandler(void);
 void DMA1_37_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1518,6 +1571,7 @@ void DMA1_37_DriverIRQHandler(void)
 }
 
 #else
+void DMA1_04_DriverIRQHandler(void);
 void DMA1_04_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1531,6 +1585,7 @@ void DMA1_04_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_15_DriverIRQHandler(void);
 void DMA1_15_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1544,6 +1599,7 @@ void DMA1_15_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_26_DriverIRQHandler(void);
 void DMA1_26_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1557,6 +1613,7 @@ void DMA1_26_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_37_DriverIRQHandler(void);
 void DMA1_37_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1579,6 +1636,7 @@ void DMA1_37_DriverIRQHandler(void)
 /* 16 channels (Shared): K32H844P */
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && (FSL_FEATURE_EDMA_MODULE_CHANNEL == 16U)
 
+void DMA0_08_DriverIRQHandler(void);
 void DMA0_08_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1592,6 +1650,7 @@ void DMA0_08_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_19_DriverIRQHandler(void);
 void DMA0_19_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1605,6 +1664,7 @@ void DMA0_19_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_210_DriverIRQHandler(void);
 void DMA0_210_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1618,6 +1678,7 @@ void DMA0_210_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_311_DriverIRQHandler(void);
 void DMA0_311_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1631,6 +1692,7 @@ void DMA0_311_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_412_DriverIRQHandler(void);
 void DMA0_412_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 4U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1644,6 +1706,7 @@ void DMA0_412_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_513_DriverIRQHandler(void);
 void DMA0_513_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 5U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1657,6 +1720,7 @@ void DMA0_513_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_614_DriverIRQHandler(void);
 void DMA0_614_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 6U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1670,6 +1734,7 @@ void DMA0_614_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_715_DriverIRQHandler(void);
 void DMA0_715_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 7U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1684,6 +1749,7 @@ void DMA0_715_DriverIRQHandler(void)
 }
 
 #if defined(DMA1)
+void DMA1_08_DriverIRQHandler(void);
 void DMA1_08_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1697,6 +1763,7 @@ void DMA1_08_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_19_DriverIRQHandler(void);
 void DMA1_19_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1710,6 +1777,7 @@ void DMA1_19_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_210_DriverIRQHandler(void);
 void DMA1_210_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1723,6 +1791,7 @@ void DMA1_210_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_311_DriverIRQHandler(void);
 void DMA1_311_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1736,6 +1805,7 @@ void DMA1_311_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_412_DriverIRQHandler(void);
 void DMA1_412_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 4U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1749,6 +1819,7 @@ void DMA1_412_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_513_DriverIRQHandler(void);
 void DMA1_513_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 5U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1762,6 +1833,7 @@ void DMA1_513_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_614_DriverIRQHandler(void);
 void DMA1_614_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 6U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1775,6 +1847,7 @@ void DMA1_614_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_715_DriverIRQHandler(void);
 void DMA1_715_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 7U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1795,7 +1868,8 @@ void DMA1_715_DriverIRQHandler(void)
     (FSL_FEATURE_EDMA_MODULE_CHANNEL_IRQ_ENTRY_SHARED_OFFSET == 16)
 /* 32 channels (Shared): k80 */
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && FSL_FEATURE_EDMA_MODULE_CHANNEL == 32U
-#if defined(DMA0) && !(defined(DMA1))
+#if defined(DMA0)
+void DMA0_DMA16_DriverIRQHandler(void);
 void DMA0_DMA16_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1809,6 +1883,7 @@ void DMA0_DMA16_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_DMA17_DriverIRQHandler(void);
 void DMA1_DMA17_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1822,6 +1897,7 @@ void DMA1_DMA17_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA2_DMA18_DriverIRQHandler(void);
 void DMA2_DMA18_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1835,6 +1911,7 @@ void DMA2_DMA18_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA3_DMA19_DriverIRQHandler(void);
 void DMA3_DMA19_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1848,6 +1925,7 @@ void DMA3_DMA19_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA4_DMA20_DriverIRQHandler(void);
 void DMA4_DMA20_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 4U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1861,6 +1939,7 @@ void DMA4_DMA20_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA5_DMA21_DriverIRQHandler(void);
 void DMA5_DMA21_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 5U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1874,6 +1953,7 @@ void DMA5_DMA21_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA6_DMA22_DriverIRQHandler(void);
 void DMA6_DMA22_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 6U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1887,6 +1967,7 @@ void DMA6_DMA22_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA7_DMA23_DriverIRQHandler(void);
 void DMA7_DMA23_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 7U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1900,6 +1981,7 @@ void DMA7_DMA23_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA8_DMA24_DriverIRQHandler(void);
 void DMA8_DMA24_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 8U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1913,6 +1995,7 @@ void DMA8_DMA24_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA9_DMA25_DriverIRQHandler(void);
 void DMA9_DMA25_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 9U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1926,6 +2009,7 @@ void DMA9_DMA25_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA10_DMA26_DriverIRQHandler(void);
 void DMA10_DMA26_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 10U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1939,6 +2023,7 @@ void DMA10_DMA26_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA11_DMA27_DriverIRQHandler(void);
 void DMA11_DMA27_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 11U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1952,6 +2037,7 @@ void DMA11_DMA27_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA12_DMA28_DriverIRQHandler(void);
 void DMA12_DMA28_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 12U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1965,6 +2051,7 @@ void DMA12_DMA28_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA13_DMA29_DriverIRQHandler(void);
 void DMA13_DMA29_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 13U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1978,6 +2065,7 @@ void DMA13_DMA29_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA14_DMA30_DriverIRQHandler(void);
 void DMA14_DMA30_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 14U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -1991,6 +2079,7 @@ void DMA14_DMA30_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA15_DMA31_DriverIRQHandler(void);
 void DMA15_DMA31_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 15U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2005,418 +2094,226 @@ void DMA15_DMA31_DriverIRQHandler(void)
 }
 
 #else
-void DMA0_0_16_DriverIRQHandler(void)
+void DMA0_DMA16_DriverIRQHandler(void);
+void DMA0_DMA16_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[0]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 16U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 16U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[16]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_1_17_DriverIRQHandler(void)
+void DMA1_DMA17_DriverIRQHandler(void);
+void DMA1_DMA17_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[1]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 17U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 17U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[17]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_2_18_DriverIRQHandler(void)
+void DMA2_DMA18_DriverIRQHandler(void);
+void DMA2_DMA18_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[2]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 18U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 18U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[18]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_3_19_DriverIRQHandler(void)
+void DMA3_DMA19_DriverIRQHandler(void);
+void DMA3_DMA19_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[3]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 19U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 19U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[19]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_4_20_DriverIRQHandler(void)
+void DMA4_DMA20_DriverIRQHandler(void);
+void DMA4_DMA20_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 4U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 4U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[4]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 20U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 20U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[20]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_5_21_DriverIRQHandler(void)
+void DMA5_DMA21_DriverIRQHandler(void);
+void DMA5_DMA21_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 5U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 5U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[5]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 21U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 21U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[21]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_6_22_DriverIRQHandler(void)
+void DMA6_DMA22_DriverIRQHandler(void);
+void DMA6_DMA22_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 6U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 6U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[6]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 22U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 22U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[22]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_7_23_DriverIRQHandler(void)
+void DMA7_DMA23_DriverIRQHandler(void);
+void DMA7_DMA23_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 7U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 7U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[7]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 23U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 23U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[23]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_8_24_DriverIRQHandler(void)
+void DMA8_DMA24_DriverIRQHandler(void);
+void DMA8_DMA24_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 8U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 8U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[8]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 24U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 24U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[24]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_9_25_DriverIRQHandler(void)
+void DMA9_DMA25_DriverIRQHandler(void);
+void DMA9_DMA25_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 9U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 9U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[9]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 25U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 25U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[25]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_10_26_DriverIRQHandler(void)
+void DMA10_DMA26_DriverIRQHandler(void);
+void DMA10_DMA26_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 10U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 10U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[10]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 26U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 26U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[26]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_11_27_DriverIRQHandler(void)
+void DMA11_DMA27_DriverIRQHandler(void);
+void DMA11_DMA27_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 11U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 11U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[11]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 27U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 27U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[27]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_12_28_DriverIRQHandler(void)
+void DMA12_DMA28_DriverIRQHandler(void);
+void DMA12_DMA28_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 12U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 12U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[12]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 28U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 28U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[28]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_13_29_DriverIRQHandler(void)
+void DMA13_DMA29_DriverIRQHandler(void);
+void DMA13_DMA29_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 13U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 13U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[13]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 29U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 29U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[29]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_14_30_DriverIRQHandler(void)
+void DMA14_DMA30_DriverIRQHandler(void);
+void DMA14_DMA30_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 14U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 14U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[14]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 30U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
+    if ((EDMA_GetChannelStatusFlags(DMA1, 30U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
         EDMA_HandleIRQ(s_EDMAHandle[30]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
 
-void DMA0_15_31_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA0, 15U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[15]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 31U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[31]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_0_16_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[32]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 16U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[48]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_1_17_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[33]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 17U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[49]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_2_18_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[34]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 18U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[50]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_3_19_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[35]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 19U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[51]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_4_20_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 4U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[36]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 20U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[52]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_5_21_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 5U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[37]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 21U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[53]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_6_22_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 6U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[38]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 22U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[54]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_7_23_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 7U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[39]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 23U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[55]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_8_24_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 8U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[40]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 24U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[56]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_9_25_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 9U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[41]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 25U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[57]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_10_26_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 10U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[42]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 26U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[58]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_11_27_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 11U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[43]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 27U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[59]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_12_28_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 12U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[44]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 28U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[60]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_13_29_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 13U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[45]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 29U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[61]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_14_30_DriverIRQHandler(void)
-{
-    if ((EDMA_GetChannelStatusFlags(DMA1, 14U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[46]);
-    }
-    if ((EDMA_GetChannelStatusFlags(DMA1, 30U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
-    {
-        EDMA_HandleIRQ(s_EDMAHandle[62]);
-    }
-    SDK_ISR_EXIT_BARRIER;
-}
-
-void DMA1_15_31_DriverIRQHandler(void)
+void DMA15_DMA31_DriverIRQHandler(void);
+void DMA15_DMA31_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA1, 15U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
-        EDMA_HandleIRQ(s_EDMAHandle[47]);
+        EDMA_HandleIRQ(s_EDMAHandle[15]);
     }
     if ((EDMA_GetChannelStatusFlags(DMA1, 31U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
     {
-        EDMA_HandleIRQ(s_EDMAHandle[63]);
+        EDMA_HandleIRQ(s_EDMAHandle[31]);
     }
     SDK_ISR_EXIT_BARRIER;
 }
@@ -2430,6 +2327,7 @@ void DMA1_15_31_DriverIRQHandler(void)
 /* 32 channels (Shared): MCIMX7U5_M4 */
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && (FSL_FEATURE_EDMA_MODULE_CHANNEL == 32U)
 
+void DMA0_0_4_DriverIRQHandler(void);
 void DMA0_0_4_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2443,6 +2341,7 @@ void DMA0_0_4_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_1_5_DriverIRQHandler(void);
 void DMA0_1_5_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2456,6 +2355,7 @@ void DMA0_1_5_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_2_6_DriverIRQHandler(void);
 void DMA0_2_6_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2469,6 +2369,7 @@ void DMA0_2_6_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_3_7_DriverIRQHandler(void);
 void DMA0_3_7_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2482,6 +2383,7 @@ void DMA0_3_7_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_8_12_DriverIRQHandler(void);
 void DMA0_8_12_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 8U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2495,6 +2397,7 @@ void DMA0_8_12_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_9_13_DriverIRQHandler(void);
 void DMA0_9_13_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 9U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2508,6 +2411,7 @@ void DMA0_9_13_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_10_14_DriverIRQHandler(void);
 void DMA0_10_14_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 10U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2521,6 +2425,7 @@ void DMA0_10_14_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_11_15_DriverIRQHandler(void);
 void DMA0_11_15_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 11U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2534,6 +2439,7 @@ void DMA0_11_15_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_16_20_DriverIRQHandler(void);
 void DMA0_16_20_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 16U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2547,6 +2453,7 @@ void DMA0_16_20_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_17_21_DriverIRQHandler(void);
 void DMA0_17_21_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 17U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2560,6 +2467,7 @@ void DMA0_17_21_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_18_22_DriverIRQHandler(void);
 void DMA0_18_22_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 18U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2573,6 +2481,7 @@ void DMA0_18_22_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_19_23_DriverIRQHandler(void);
 void DMA0_19_23_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 19U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2586,6 +2495,7 @@ void DMA0_19_23_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_24_28_DriverIRQHandler(void);
 void DMA0_24_28_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 24U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2599,6 +2509,7 @@ void DMA0_24_28_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_25_29_DriverIRQHandler(void);
 void DMA0_25_29_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 25U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2612,6 +2523,7 @@ void DMA0_25_29_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_26_30_DriverIRQHandler(void);
 void DMA0_26_30_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 26U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2625,6 +2537,7 @@ void DMA0_26_30_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA0_27_31_DriverIRQHandler(void);
 void DMA0_27_31_DriverIRQHandler(void)
 {
     if ((EDMA_GetChannelStatusFlags(DMA0, 27U) & (uint32_t)kEDMA_InterruptFlag) != 0U)
@@ -2645,24 +2558,28 @@ void DMA0_27_31_DriverIRQHandler(void)
 /* 4 channels (No Shared): kv10  */
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && (FSL_FEATURE_EDMA_MODULE_CHANNEL > 0)
 
+void DMA0_DriverIRQHandler(void);
 void DMA0_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[0]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA1_DriverIRQHandler(void);
 void DMA1_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[1]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA2_DriverIRQHandler(void);
 void DMA2_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[2]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA3_DriverIRQHandler(void);
 void DMA3_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[3]);
@@ -2672,24 +2589,28 @@ void DMA3_DriverIRQHandler(void)
 /* 8 channels (No Shared) */
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && (FSL_FEATURE_EDMA_MODULE_CHANNEL > 4U)
 
+void DMA4_DriverIRQHandler(void);
 void DMA4_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[4]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA5_DriverIRQHandler(void);
 void DMA5_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[5]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA6_DriverIRQHandler(void);
 void DMA6_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[6]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA7_DriverIRQHandler(void);
 void DMA7_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[7]);
@@ -2700,48 +2621,56 @@ void DMA7_DriverIRQHandler(void)
 /* 16 channels (No Shared) */
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && (FSL_FEATURE_EDMA_MODULE_CHANNEL > 8U)
 
+void DMA8_DriverIRQHandler(void);
 void DMA8_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[8]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA9_DriverIRQHandler(void);
 void DMA9_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[9]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA10_DriverIRQHandler(void);
 void DMA10_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[10]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA11_DriverIRQHandler(void);
 void DMA11_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[11]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA12_DriverIRQHandler(void);
 void DMA12_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[12]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA13_DriverIRQHandler(void);
 void DMA13_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[13]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA14_DriverIRQHandler(void);
 void DMA14_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[14]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA15_DriverIRQHandler(void);
 void DMA15_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[15]);
@@ -2752,96 +2681,112 @@ void DMA15_DriverIRQHandler(void)
 /* 32 channels (No Shared) */
 #if defined(FSL_FEATURE_EDMA_MODULE_CHANNEL) && (FSL_FEATURE_EDMA_MODULE_CHANNEL > 16U)
 
+void DMA16_DriverIRQHandler(void);
 void DMA16_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[16]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA17_DriverIRQHandler(void);
 void DMA17_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[17]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA18_DriverIRQHandler(void);
 void DMA18_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[18]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA19_DriverIRQHandler(void);
 void DMA19_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[19]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA20_DriverIRQHandler(void);
 void DMA20_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[20]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA21_DriverIRQHandler(void);
 void DMA21_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[21]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA22_DriverIRQHandler(void);
 void DMA22_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[22]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA23_DriverIRQHandler(void);
 void DMA23_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[23]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA24_DriverIRQHandler(void);
 void DMA24_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[24]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA25_DriverIRQHandler(void);
 void DMA25_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[25]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA26_DriverIRQHandler(void);
 void DMA26_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[26]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA27_DriverIRQHandler(void);
 void DMA27_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[27]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA28_DriverIRQHandler(void);
 void DMA28_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[28]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA29_DriverIRQHandler(void);
 void DMA29_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[29]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA30_DriverIRQHandler(void);
 void DMA30_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[30]);
     SDK_ISR_EXIT_BARRIER;
 }
 
+void DMA31_DriverIRQHandler(void);
 void DMA31_DriverIRQHandler(void)
 {
     EDMA_HandleIRQ(s_EDMAHandle[31]);
