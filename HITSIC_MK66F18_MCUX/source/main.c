@@ -80,9 +80,6 @@ dmadvp_config_t dmadvpCfg;
 dmadvp_handle_t dmadvpHandle;
 void CAM_ZF9V034_DmaCallback(edma_handle_t *handle, void *userData, bool transferDone, uint32_t tcds);
 
-inv::i2cInterface_t imu_i2c(nullptr, IMU_INV_I2cRxBlocking, IMU_INV_I2cTxBlocking);
-inv::mpu6050_t imu_6050(imu_i2c);
-
 disp_ssd1306_fb_t dispBuffer;
 
 /** HITSIC_Module_TEST */
