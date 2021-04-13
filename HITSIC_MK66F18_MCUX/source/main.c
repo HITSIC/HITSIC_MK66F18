@@ -49,7 +49,7 @@
 #include <drv_disp_ssd1306.h>
 #include <drv_dmadvp.h>
 #include <drv_ftfx_flash.h>
-#include "drv_imu_invensense.hpp"
+
 #include <sys_pitmgr.h>
 #include <sys_extint.h>
 
@@ -63,6 +63,9 @@
 
 #include "cm_backtrace.h"
 #include "easyflash.h"
+#include "drv_imu_invensense.h"
+
+
 #include "sdmmc_config.h"
 #include "ff.h"
 FATFS fatfs;                                   //逻辑驱动器的工作区
@@ -89,6 +92,8 @@ disp_ssd1306_fb_t dispBuffer;
 #include <sys_fatfs_test.h>
 #include <sys_fatfs_diskioTest.h>
 #include <extlib_easyflash_test.h>
+
+#include <drv_invimu_test.h>
 
 /** SCLIB_TEST */
 #include <sc_test.h>
@@ -179,6 +184,8 @@ void main(void)
 //    menu_list_t *list = MENU_DirGetList("/TestList");
 //    if(true);
 //    menu_itemIfce_t *itme = MENU_DirGetItem(list, "region_i");
+
+    INV_IMU_Example(0, NULL);
 
     while (true)
     {
