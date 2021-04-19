@@ -80,10 +80,10 @@ dmadvp_config_t dmadvpCfg;
 dmadvp_handle_t dmadvpHandle;
 void CAM_ZF9V034_DmaCallback(edma_handle_t *handle, void *userData, bool transferDone, uint32_t tcds);
 
-disp_ssd1306_fb_t dispBuffer;
+disp_ssd1327_fb_t dispBuffer;
 
 /** HITSIC_Module_TEST */
-#include <drv_cam_zf9v034_test.h>
+//#include <drv_cam_zf9v034_test.h>
 #include <app_menu_test.h>
 #include "drv_imu_invensense_test.hpp"
 #include <sys_fatfs_test.h>
@@ -120,9 +120,19 @@ void main(void)
     cm_backtrace_init("HITSIC_MK66F18", "2020-v3.0", "v4.2.0");
 
     /** 初始化OLED屏幕 */
-    DISP_SSD1306_Init();
-    extern const uint8_t DISP_image_100thAnniversary[8][128];
-    DISP_SSD1306_BufferUpload((uint8_t*) DISP_image_100thAnniversary);
+    DISP_SSD1327_Init();
+    DPSI_SSD1327_DispEnable(true);
+    DISP_SSD1327_Fill(0);
+
+    for(int i = 0; i < 127; ++i)
+    {
+        DISP_SSD1327_FB_SetPixelColor(&dispBuffer, i,i,0x0f);
+    }
+
+    DISP_SSD1327_BufferUpload(&dispBuffer);
+
+    //extern const uint8_t DISP_image_100thAnniversary[8][128];
+    //DISP_SSD1306_BufferUpload((uint8_t*) DISP_image_100thAnniversary);
     /** 初始化ftfx_Flash */
     FLASH_SimpleInit();
     //easyflash_init();
@@ -170,7 +180,7 @@ void main(void)
     //cDISP_SSD1306_BufferUpload((uint8_t*) DISP_image_100thAnniversary);
     //DISP_SSD1306_delay_ms(100);
     //DISP_SSD1306_BufferUploadDMA((uint8_t*) DISP_image_100thAnniversary);
-    CAM_ZF9V034_UnitTest();
+    //CAM_ZF9V034_UnitTest();
     //DISP_SSD1306_BufferUpload((uint8_t*) &dispBuffer);
 
     //EF_BasicTest();
