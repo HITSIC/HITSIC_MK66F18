@@ -298,9 +298,6 @@ extern int main(void);
 //extern void _vStackTop(void);
 extern const int _vStackTop;
 //*****************************************************************************
-#if defined (__cplusplus)
-} // extern "C"
-#endif
 //*****************************************************************************
 // The vector table.
 // This relies on the linker script to place at correct location in memory.
@@ -1033,6 +1030,11 @@ WEAK void CAN1_Rx_Warning_IRQHandler(void)
 WEAK void CAN1_Wake_Up_IRQHandler(void)
 {   CAN1_DriverIRQHandler();
 }
+
+#if defined (__cplusplus)
+} // extern "C"
+#endif
+
 
 //*****************************************************************************
 

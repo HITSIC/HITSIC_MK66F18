@@ -75,6 +75,8 @@ extint_t extint_porta, extint_portb, extint_portc, extint_portd, extint_porte;
 
 void MENU_DataSetUp(void);
 
+#include "button.h"
+
 cam_zf9v034_configPacket_t cameraCfg;
 dmadvp_config_t dmadvpCfg;
 dmadvp_handle_t dmadvpHandle;
@@ -85,12 +87,10 @@ disp_ssd1306_fb_t dispBuffer;
 /** HITSIC_Module_TEST */
 #include <drv_cam_zf9v034_test.h>
 #include <app_menu_test.h>
-#include "drv_imu_invensense_test.hpp"
+#include <drv_invimu_test.h>
 #include <sys_fatfs_test.h>
 #include <sys_fatfs_diskioTest.h>
 #include <extlib_easyflash_test.h>
-
-#include <drv_invimu_test.h>
 
 /** SCLIB_TEST */
 #include <sc_test.h>
@@ -156,6 +156,8 @@ void main(void)
     MENU_Data_NvmRead(menu_currRegionNum);
     /** 菜单挂起 */
     MENU_Suspend();
+    /** 初始化按键 */
+    BUTTON_Init();
     /** 初始化摄像头 */
     //TODO: 在这里初始化摄像头
     /** 初始化IMU */
