@@ -66,6 +66,20 @@
 
 #include "textmenu.h"
 
+void MENU_PitmgrHandler(void *_userData)
+{
+    MENU_PitIsr();
+}
+
+pitmgr_handle_t menu_pitHandle =
+{
+    .tickInterval = 250UL,
+    .tickOffset = 7UL,
+    .handler = MENU_PitmgrHandler,
+    .pptFlag = pitmgr_pptEnable,
+    .userData = NULL,
+};
+
 
 #include "sdmmc_config.h"
 #include "ff.h"
@@ -126,7 +140,7 @@ void main(void)
     DISP_SSD1306_BufferUpload((uint8_t*) DISP_image_100thAnniversary);
     /** 初始化ftfx_Flash */
     FLASH_SimpleInit();
-    //easyflash_init();
+    easyflash_init();
     /** 初始化PIT中断管理器 */
     NVIC_SetPriority(LPTMR0_IRQn, 4U);
     EnableIRQ(LPTMR0_IRQn);
@@ -153,8 +167,9 @@ void main(void)
     EXTINT_Init(&extint_porte);
     /** 初始化菜单 */
     MENU_Init();
-    MENU_Data_NvmReadRegionConfig();
-    MENU_Data_NvmRead(menu_currRegionNum);
+    //MENU_Data_NvmReadRegionConfig();
+    //MENU_Data_NvmRead(menu_currRegionNum[0]);
+    PITMGR_HandleInsert(&pitmgr_main, &menu_pitHandle);
     /** 菜单挂起 */
     MENU_Suspend();
     /** 初始化按键 */
@@ -173,7 +188,7 @@ void main(void)
     //cDISP_SSD1306_BufferUpload((uint8_t*) DISP_image_100thAnniversary);
     //DISP_SSD1306_delay_ms(100);
     //DISP_SSD1306_BufferUploadDMA((uint8_t*) DISP_image_100thAnniversary);
-    CAM_ZF9V034_UnitTest();
+    //CAM_ZF9V034_UnitTest();
     //DISP_SSD1306_BufferUpload((uint8_t*) &dispBuffer);
 
     //EF_BasicTest();
@@ -193,7 +208,7 @@ void main(void)
     }
 }
 
-void MENU_DataSetUp(void)
+void MENU_DataSetUpd(void)
 {
     //MENU_ListInsert(menu_menuRoot, MENU_ItemConstruct(nullType, NULL, "EXAMPLE", 0, 0));
     //TODO: 在这里添加子菜单和菜单项
