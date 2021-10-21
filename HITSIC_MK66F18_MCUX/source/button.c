@@ -42,7 +42,7 @@ button_t button_ok;
 
 uint32_t BUTTON_Read_OK(void)
 {
-    GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_OK_GPIO, RTEPIN_DIGITAL_BUTTON_OK_PIN);
+    return GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_OK_GPIO, RTEPIN_DIGITAL_BUTTON_OK_PIN);
 }
 void BUTTON_SetInterrupt_OK(button_interrupt_t _int)
 {
@@ -81,7 +81,7 @@ button_t button_up;
 
 uint32_t BUTTON_Read_UP(void)
 {
-    GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_UP_GPIO, RTEPIN_DIGITAL_BUTTON_UP_PIN);
+    return GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_UP_GPIO, RTEPIN_DIGITAL_BUTTON_UP_PIN);
 }
 void BUTTON_SetInterrupt_UP(button_interrupt_t _int)
 {
@@ -120,7 +120,7 @@ button_t button_dn;
 
 uint32_t BUTTON_Read_DN(void)
 {
-    GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_DN_GPIO, RTEPIN_DIGITAL_BUTTON_DN_PIN);
+    return GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_DN_GPIO, RTEPIN_DIGITAL_BUTTON_DN_PIN);
 }
 void BUTTON_SetInterrupt_DN(button_interrupt_t _int)
 {
@@ -159,7 +159,7 @@ button_t button_lf;
 
 uint32_t BUTTON_Read_LF(void)
 {
-    GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_LF_GPIO, RTEPIN_DIGITAL_BUTTON_LF_PIN);
+    return GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_LF_GPIO, RTEPIN_DIGITAL_BUTTON_LF_PIN);
 }
 void BUTTON_SetInterrupt_LF(button_interrupt_t _int)
 {
@@ -198,7 +198,7 @@ button_t button_rt;
 
 uint32_t BUTTON_Read_RT(void)
 {
-    GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_RT_GPIO, RTEPIN_DIGITAL_BUTTON_RT_PIN);
+    return GPIO_PinRead(RTEPIN_DIGITAL_BUTTON_RT_GPIO, RTEPIN_DIGITAL_BUTTON_RT_PIN);
 }
 void BUTTON_SetInterrupt_RT(button_interrupt_t _int)
 {

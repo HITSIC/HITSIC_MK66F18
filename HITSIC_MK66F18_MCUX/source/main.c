@@ -56,7 +56,6 @@
 /** HITSIC_Module_LIB */
 #include <lib_graphic.h>
 #include <app_svbmp.h>
-#include <app_menu.h>
 #include "sc_adc.h"
 #include "sc_ftm.h"
 
@@ -64,6 +63,8 @@
 #include "cm_backtrace.h"
 #include "easyflash.h"
 #include "drv_imu_invensense.h"
+
+#include "textmenu.h"
 
 
 #include "sdmmc_config.h"
@@ -86,7 +87,7 @@ disp_ssd1306_fb_t dispBuffer;
 
 /** HITSIC_Module_TEST */
 #include <drv_cam_zf9v034_test.h>
-#include <app_menu_test.h>
+//#include <app_menu_test.h>
 #include <drv_invimu_test.h>
 #include <sys_fatfs_test.h>
 #include <sys_fatfs_diskioTest.h>
@@ -113,10 +114,10 @@ void main(void)
 
     /** 初始化调试组件 */
     //DbgConsole_Init(0U, 921600U, kSerialPort_Uart, CLOCK_GetFreq(kCLOCK_CoreSysClk));
-    PRINTF("Welcome to HITSIC !\n");
-    PRINTF("Compiler: GCC %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-    PRINTF("C++ std = %d\n", __cplusplus);
-    PRINTF("Complie time: %s %s\n", __DATE__, __TIME__);
+    printf("Welcome to HITSIC !\n");
+    printf("Compiler: GCC %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    printf("C++ std = %d\n", __cplusplus);
+    printf("Complie time: %s %s\n", __DATE__, __TIME__);
     cm_backtrace_init("HITSIC_MK66F18", "2020-v3.0", "v4.2.0");
 
     /** 初始化OLED屏幕 */
@@ -194,9 +195,9 @@ void main(void)
 
 void MENU_DataSetUp(void)
 {
-    MENU_ListInsert(menu_menuRoot, MENU_ItemConstruct(nullType, NULL, "EXAMPLE", 0, 0));
+    //MENU_ListInsert(menu_menuRoot, MENU_ItemConstruct(nullType, NULL, "EXAMPLE", 0, 0));
     //TODO: 在这里添加子菜单和菜单项
-    MENU_DataSetupTest(menu_menuRoot);
+    //MENU_DataSetupTest(menu_menuRoot);
 }
 
 void CAM_ZF9V034_DmaCallback(edma_handle_t *handle, void *userData, bool transferDone, uint32_t tcds)

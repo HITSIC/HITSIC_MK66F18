@@ -68,9 +68,11 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/plugins/types/struct2json/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/drv_invimu}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/TextMenu}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/EasyFlash-4.1.0/easyflash/port}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/drv_invimu}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/TextMenu/port}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.include.files.1460525962" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.553324492" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="false"/>
@@ -153,9 +155,11 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/plugins/types/struct2json/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/drv_invimu}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/TextMenu}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/EasyFlash-4.1.0/easyflash/port}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/drv_invimu}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18/extlib_port/TextMenu/port}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.files.1842852847" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.40456240" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false"/>
@@ -364,7 +368,7 @@
 					<sourceEntries>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry excluding="extlib_port/EasyFlash-4.0.0|legacy_drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/d_mk66f18"/>
-						<entry excluding="extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
+						<entry excluding="extlib/TextMenu/port|extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="board"/>
 						<entry excluding="uart/fsl_adapter_uart.c|uart/uart_adapter.c" flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="component"/>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="device"/>
@@ -744,7 +748,7 @@
 					<sourceEntries>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry excluding="extlib_port/EasyFlash-4.0.0|legacy_drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/d_mk66f18"/>
-						<entry excluding="extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
+						<entry excluding="extlib/TextMenu/port|extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="board"/>
 						<entry excluding="uart/fsl_adapter_uart.c|uart/uart_adapter.c" flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="component"/>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="device"/>

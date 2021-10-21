@@ -3,7 +3,7 @@
 #include <drv_button.h>
 #include <sys_pitmgr.h>
 #include <sys_extint.h>
-#include <app_menu.h>
+#include <textmenu.h>
 
 //// BUTTON OK
 //button_config_t button_cfg_ok;
