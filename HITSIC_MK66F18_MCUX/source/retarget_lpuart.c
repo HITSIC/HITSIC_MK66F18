@@ -37,7 +37,7 @@ int _write(int iFileHandle, char *pcBuffer, int iLength)
     // Check that iFileHandle == 1 to confirm that read is from stdout
     if(1 == iFileHandle)
     {
-    if(kStatus_Success == LPUART_WriteBlocking(RETARGET_INST, pcBuffer, iLength))
+    if(kStatus_Success != LPUART_WriteBlocking(RETARGET_INST, pcBuffer, iLength))
     {
         return 0;
     }
@@ -60,7 +60,7 @@ int _read(int iFileHandle, char *pcBuffer, int iLength)
 	// Check that iFileHandle == 0 to confirm that read is from stdin
     if(0 == iFileHandle)
     {
-	if(kStatus_Success == LPUART_ReadBlocking(RETARGET_INST, pcBuffer, iLength))
+	if(kStatus_Success != LPUART_ReadBlocking(RETARGET_INST, pcBuffer, iLength))
 	{
 	    return iLength;
 	}
