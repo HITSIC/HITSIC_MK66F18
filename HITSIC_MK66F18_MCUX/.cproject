@@ -63,7 +63,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities_test}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/mlib-0.5.0}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/mlib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/plugins/types/struct2json/inc}&quot;"/>
@@ -150,7 +150,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities_test}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/d_mk66f18}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/mlib-0.5.0}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/mlib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/CmBacktrace-1.4.0/cm_backtrace}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HITSIC_Module/utilities/extlib/EasyFlash-4.1.0/easyflash/plugins/types/struct2json/inc}&quot;"/>
@@ -368,7 +368,7 @@
 					<sourceEntries>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry excluding="extlib_port/EasyFlash-4.0.0|legacy_drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/d_mk66f18"/>
-						<entry excluding="extlib/TextMenu/port|extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
+						<entry excluding="extlib/mlib/tests|extlib/mlib/doc|extlib/mlib/example|extlib/mlib/bench|extlib/TextMenu/port|extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="board"/>
 						<entry excluding="uart/fsl_adapter_uart.c|uart/uart_adapter.c" flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="component"/>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="device"/>
@@ -748,7 +748,7 @@
 					<sourceEntries>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry excluding="extlib_port/EasyFlash-4.0.0|legacy_drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/d_mk66f18"/>
-						<entry excluding="extlib/TextMenu/port|extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
+						<entry excluding="extlib/mlib/tests|extlib/mlib/doc|extlib/mlib/example|extlib/mlib/bench|extlib/TextMenu/port|extlib/mlib-0.5.0/tests|extlib/mlib-0.5.0/example|extlib/mlib-0.5.0/doc|extlib/mlib-0.5.0/bench|extlib/EasyFlash-4.0.0|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/keil|extlib/CmBacktrace-1.4.0/cm_backtrace/fault_handler/iar" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HITSIC_Module/utilities"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="board"/>
 						<entry excluding="uart/fsl_adapter_uart.c|uart/uart_adapter.c" flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="component"/>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="device"/>

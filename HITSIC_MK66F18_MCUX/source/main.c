@@ -167,8 +167,8 @@ void main(void)
     EXTINT_Init(&extint_porte);
     /** 初始化菜单 */
     MENU_Init();
-    //MENU_Data_NvmReadRegionConfig();
-    //MENU_Data_NvmRead(menu_currRegionNum[0]);
+    //MENU_KVDB_DataReadRegionConfig();
+    //MENU_KVDB_DataRead(menu_currRegionNum[0]);
     PITMGR_HandleInsert(&pitmgr_main, &menu_pitHandle);
     /** 菜单挂起 */
     MENU_Suspend();
