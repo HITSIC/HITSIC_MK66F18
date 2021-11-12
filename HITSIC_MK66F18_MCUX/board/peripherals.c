@@ -6,11 +6,11 @@
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!GlobalInfo
-product: Peripherals v9.0
+product: Peripherals v10.0
 processor: MK66FX1M0xxx18
 package_id: MK66FX1M0VLQ18
 mcu_data: ksdk2_0
-processor_version: 9.0.0
+processor_version: 10.0.0
 functionalGroups:
 - name: RTEPIP_Basic
   UUID: a4a4647f-1145-476a-aea5-a573ead41735
@@ -27,6 +27,14 @@ component:
 - global_system_definitions:
   - user_definitions: ''
   - user_includes: ''
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+component:
+- type: 'uart_cmsis_common'
+- type_id: 'uart_cmsis_common_9cb8e302497aa696fdbb5a4fd622c2a8'
+- global_USART_CMSIS_common:
+  - quick_selection: 'default'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 
@@ -505,48 +513,56 @@ instance:
       - enable_custom_name: 'false'
     - adc16_channels_config:
       - 0:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.16'
         - enableInterruptOnConversionCompleted: 'false'
         - channelGroup: '0'
         - initializeChannel: 'false'
       - 1:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.23'
         - enableInterruptOnConversionCompleted: 'false'
         - channelGroup: '0'
         - initializeChannel: 'false'
       - 2:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.17'
         - enableInterruptOnConversionCompleted: 'false'
         - channelGroup: '0'
         - initializeChannel: 'false'
       - 3:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.18'
         - enableInterruptOnConversionCompleted: 'false'
         - channelGroup: '0'
         - initializeChannel: 'false'
       - 4:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.10'
         - enableInterruptOnConversionCompleted: 'false'
         - channelGroup: '0'
         - initializeChannel: 'false'
       - 5:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.11'
         - enableInterruptOnConversionCompleted: 'false'
         - channelGroup: '0'
         - initializeChannel: 'false'
       - 6:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.12'
         - enableInterruptOnConversionCompleted: 'false'
         - channelGroup: '0'
         - initializeChannel: 'false'
       - 7:
+        - channelName: ''
         - enableDifferentialConversion: 'false'
         - channelNumber: 'SE.13'
         - enableInterruptOnConversionCompleted: 'false'
@@ -867,21 +883,25 @@ instance:
   - ftm_center_aligned_mode:
     - ftm_center_aligned_channels_config:
       - 0:
+        - channelId: ''
         - chnlNumber: 'kFTM_Chnl_0'
         - level: 'kFTM_HighTrue'
         - dutyCyclePercent: '0'
         - enable_chan_irq: 'false'
       - 1:
+        - channelId: ''
         - chnlNumber: 'kFTM_Chnl_1'
         - level: 'kFTM_HighTrue'
         - dutyCyclePercent: '0'
         - enable_chan_irq: 'false'
       - 2:
+        - channelId: ''
         - chnlNumber: 'kFTM_Chnl_2'
         - level: 'kFTM_HighTrue'
         - dutyCyclePercent: '0'
         - enable_chan_irq: 'false'
       - 3:
+        - channelId: ''
         - chnlNumber: 'kFTM_Chnl_3'
         - level: 'kFTM_HighTrue'
         - dutyCyclePercent: '0'
@@ -1036,6 +1056,7 @@ instance:
   - ftm_center_aligned_mode:
     - ftm_center_aligned_channels_config:
       - 0:
+        - channelId: ''
         - chnlNumber: 'kFTM_Chnl_7'
         - level: 'kFTM_HighTrue'
         - dutyCyclePercent: '30'

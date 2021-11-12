@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding= "UTF-8" ?>
-<configuration name="" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.9 http://mcuxpresso.nxp.com/XSD/mex_configuration_1.9.xsd" uuid="a1828958-6c63-496a-9ce9-10f2365969fd" version="1.9" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<configuration name="" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_10 http://mcuxpresso.nxp.com/XSD/mex_configuration_10.xsd" uuid="a1828958-6c63-496a-9ce9-10f2365969fd" version="10" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <common>
       <processor>MK66FX1M0xxx18</processor>
       <package>MK66FX1M0VLQ18</package>
@@ -13,15 +13,16 @@
       <validate_boot_init_only>true</validate_boot_init_only>
       <generate_extended_information>false</generate_extended_information>
       <generate_code_modified_registers_only>false</generate_code_modified_registers_only>
+      <update_include_paths>true</update_include_paths>
    </preferences>
    <tools>
-      <pins name="Pins" version="9.0" enabled="true" update_project_code="true">
+      <pins name="Pins" version="10.0" enabled="true" update_project_code="true">
          <generated_project_files>
             <file path="board/pin_mux.c" update_enabled="true"/>
             <file path="board/pin_mux.h" update_enabled="true"/>
          </generated_project_files>
          <pins_profile>
-            <processor_version>9.0.0</processor_version>
+            <processor_version>10.0.0</processor_version>
             <pin_labels>
                <pin_label pin_num="3" pin_signal="ADC1_SE6a/PTE2/LLWU_P1/SPI1_SCK/UART1_CTS_b/SDHC0_DCLK/TRACE_D2" label="SD_CLK" identifier="SD_CLK"/>
                <pin_label pin_num="4" pin_signal="ADC1_SE7a/PTE3/SPI1_SIN/UART1_RTS_b/SDHC0_CMD/TRACE_D1/SPI1_SOUT" label="SD_CMD" identifier="SD_CMD"/>
@@ -568,13 +569,13 @@
             </function>
          </functions_list>
       </pins>
-      <clocks name="Clocks" version="7.0" enabled="true" update_project_code="false">
+      <clocks name="Clocks" version="8.0" enabled="true" update_project_code="false">
          <generated_project_files>
             <file path="board/clock_config.c" update_enabled="true"/>
             <file path="board/clock_config.h" update_enabled="true"/>
          </generated_project_files>
          <clocks_profile>
-            <processor_version>9.0.0</processor_version>
+            <processor_version>10.0.0</processor_version>
          </clocks_profile>
          <clock_configurations>
             <clock_configuration name="RTECLK_HsRun_180MHz">
@@ -739,7 +740,7 @@
          </dcdx_profile>
          <dcdx_configurations/>
       </dcdx>
-      <periphs name="Peripherals" version="9.0" enabled="true" update_project_code="true">
+      <periphs name="Peripherals" version="10.0" enabled="true" update_project_code="true">
          <dependencies>
             <dependency resourceType="SWComponent" resourceId="platform.drivers.edma" description="工具链/IDE工程中未找到EDMA Driver。工程不会被编译！" problem_level="2" source="Peripherals">
                <feature name="enabled" evaluation="equal">
@@ -847,7 +848,7 @@
             <file path="board/peripherals.h" update_enabled="true"/>
          </generated_project_files>
          <peripherals_profile>
-            <processor_version>9.0.0</processor_version>
+            <processor_version>10.0.0</processor_version>
          </peripherals_profile>
          <functional_groups>
             <functional_group name="RTEPIP_Basic" uuid="a4a4647f-1145-476a-aea5-a573ead41735" called_from_default_init="false" id_prefix="" core="core0">
@@ -1335,6 +1336,7 @@
                         </struct>
                         <array name="adc16_channels_config">
                            <struct name="0">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.16"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1342,6 +1344,7 @@
                               <setting name="initializeChannel" value="false"/>
                            </struct>
                            <struct name="1">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.23"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1349,6 +1352,7 @@
                               <setting name="initializeChannel" value="false"/>
                            </struct>
                            <struct name="2">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.17"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1356,6 +1360,7 @@
                               <setting name="initializeChannel" value="false"/>
                            </struct>
                            <struct name="3">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.18"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1363,6 +1368,7 @@
                               <setting name="initializeChannel" value="false"/>
                            </struct>
                            <struct name="4">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.10"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1370,6 +1376,7 @@
                               <setting name="initializeChannel" value="false"/>
                            </struct>
                            <struct name="5">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.11"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1377,6 +1384,7 @@
                               <setting name="initializeChannel" value="false"/>
                            </struct>
                            <struct name="6">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.12"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1384,6 +1392,7 @@
                               <setting name="initializeChannel" value="false"/>
                            </struct>
                            <struct name="7">
+                              <setting name="channelName" value=""/>
                               <setting name="enableDifferentialConversion" value="false"/>
                               <setting name="channelNumber" value="SE.13"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
@@ -1569,24 +1578,28 @@
                      <config_set name="ftm_center_aligned_mode">
                         <array name="ftm_center_aligned_channels_config">
                            <struct name="0">
+                              <setting name="channelId" value=""/>
                               <setting name="chnlNumber" value="kFTM_Chnl_0"/>
                               <setting name="level" value="kFTM_HighTrue"/>
                               <setting name="dutyCyclePercent" value="0"/>
                               <setting name="enable_chan_irq" value="false"/>
                            </struct>
                            <struct name="1">
+                              <setting name="channelId" value=""/>
                               <setting name="chnlNumber" value="kFTM_Chnl_1"/>
                               <setting name="level" value="kFTM_HighTrue"/>
                               <setting name="dutyCyclePercent" value="0"/>
                               <setting name="enable_chan_irq" value="false"/>
                            </struct>
                            <struct name="2">
+                              <setting name="channelId" value=""/>
                               <setting name="chnlNumber" value="kFTM_Chnl_2"/>
                               <setting name="level" value="kFTM_HighTrue"/>
                               <setting name="dutyCyclePercent" value="0"/>
                               <setting name="enable_chan_irq" value="false"/>
                            </struct>
                            <struct name="3">
+                              <setting name="channelId" value=""/>
                               <setting name="chnlNumber" value="kFTM_Chnl_3"/>
                               <setting name="level" value="kFTM_HighTrue"/>
                               <setting name="dutyCyclePercent" value="0"/>
@@ -1670,6 +1683,7 @@
                      <config_set name="ftm_center_aligned_mode">
                         <array name="ftm_center_aligned_channels_config">
                            <struct name="0">
+                              <setting name="channelId" value=""/>
                               <setting name="chnlNumber" value="kFTM_Chnl_7"/>
                               <setting name="level" value="kFTM_HighTrue"/>
                               <setting name="dutyCyclePercent" value="30"/>
@@ -1726,6 +1740,12 @@
             <component name="generic_can" uuid="e785cbd8-ccce-4082-9e9f-6476847f45dc" type_id="generic_can_1bfdd78b1af214566c1f23cf6a582d80">
                <config_set_global name="global_can"/>
             </component>
+            <component name="uart_cmsis_common" uuid="268203ad-89d2-4260-b8d9-b6303de39b91" type_id="uart_cmsis_common_9cb8e302497aa696fdbb5a4fd622c2a8">
+               <config_set_global name="global_USART_CMSIS_common" quick_selection="default"/>
+            </component>
+            <component name="generic_enet" uuid="590c9ab2-4960-483a-aafb-dbbc40342e6f" type_id="generic_enet_74db5c914f0ddbe47d86af40cb77a619">
+               <config_set_global name="global_enet"/>
+            </component>
          </components>
       </periphs>
       <tee name="TEE" version="2.0" enabled="false" update_project_code="true">
@@ -1733,8 +1753,6 @@
          <tee_profile>
             <processor_version>N/A</processor_version>
          </tee_profile>
-         <global_options/>
-         <user_memory_regions/>
       </tee>
    </tools>
 </configuration>
