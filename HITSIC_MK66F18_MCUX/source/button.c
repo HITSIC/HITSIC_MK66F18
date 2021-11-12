@@ -236,7 +236,7 @@ button_config_t button_cfg_rt =
 
 
 
-void BUTTON_PitIsr(void *userData)
+void BUTTON_BoardPitIsr(void *userData)
 {
     BUTTON_PitIsr(&button_ok);
     BUTTON_PitIsr(&button_up);
@@ -249,7 +249,7 @@ pitmgr_handle_t button_pitmgrHandle =
 {
     .tickInterval = BUTTON_PITMGR_TIME_MS,
     .tickOffset = 0UL,
-    .handler = BUTTON_PitIsr,
+    .handler = BUTTON_BoardPitIsr,
     .pptFlag = pitmgr_pptEnable,
     .userData = NULL,
 };
