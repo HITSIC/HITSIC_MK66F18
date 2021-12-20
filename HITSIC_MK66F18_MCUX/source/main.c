@@ -103,8 +103,8 @@ disp_ssd1306_fb_t dispBuffer;
 #include <drv_cam_zf9v034_test.h>
 //#include <app_menu_test.h>
 #include <drv_invimu_test.h>
-#include <sys_fatfs_test.h>
-#include <sys_fatfs_diskioTest.h>
+//#include <sys_fatfs_test.h>
+//#include <sys_fatfs_diskioTest.h>
 #include <extlib_easyflash_test.h>
 
 /** SCLIB_TEST */
